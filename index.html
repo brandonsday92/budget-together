@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<title>Budget Together</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+/* Prevent iOS from adjusting font sizes */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+/* No text selection on UI chrome — feels like a native app */
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+/* But allow selection inside inputs and text areas */
+input,textarea,select,[contenteditable]{-webkit-user-select:auto;user-select:auto;-webkit-touch-callout:default}
+/* Critical: any input/select below 16px triggers iOS zoom — enforce globally */
+@media(max-width:767px){
+  input,select,textarea,
+  input[type="text"],input[type="number"],input[type="email"],
+  input[type="tel"],input[type="search"],input[type="url"]{
+    font-size:16px!important;
+  }
+}
+:root{
+  /* Brand greens — kept from v8 */
+  --s50:#f0f7f0;--s100:#daeeda;--s200:#b6ddb6;--s400:#5a9a5a;--s500:#3d7a3d;--s600:#2e5f2e;
+  /* Neutrals — Monarch-style warm off-whites */
+  --bg:#F7F8FA;--surface:#ffffff;
+  --g50:#f7f8fa;--g100:#eef0f3;--g200:#e2e5ea;--g300:#c8cdd6;--g400:#9ba3af;--g500:#6b7280;--g600:#4b5563;--g700:#374151;--g800:#1a202c;
+  /* Semantic */
+  --r50:#fff1f1;--r300:#fca5a5;--r500:#e53e3e;--r600:#c53030;
+  --y50:#fffbeb;--y400:#f6c90e;--y600:#b7791f;
+  --c50:#f0f7f0;--c100:#daeeda;
+  /* Type */
+  --fn:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;--ff:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
+  /* Radii — Monarch uses softer corners */
+  --rad:8px;--radl:12px;--radxl:16px;
+  --sb:env(safe-area-inset-bottom,0px);
+  /* Shadows */
+  --shadow-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 16px rgba(0,0,0,.08),0 1px 4px rgba(0,0,0,.04);
+  --shadow-lg:0 12px 40px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.06);
+}
+html,body{height:100%;overflow-x:hidden;background:#F7F8FA}
+body{font-family:var(--fn);font-size:14px;color:var(--g800);background:#F7F8FA;-webkit-font-smoothing:antialiased}
+.app{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
+
+/* ── BUTTONS ── */
+.btn{font-family:var(--fn);cursor:pointer;border:none;font-size:13px;font-weight:500;border-radius:var(--rad);padding:8px 16px;transition:all .15s;touch-action:manipulation;-webkit-appearance:none;display:inline-flex;align-items:center;gap:6px}
+.bp{background:var(--s500);color:#fff;box-shadow:0 1px 3px rgba(61,122,61,.3)}.bp:hover{background:var(--s600)}.bp:active{opacity:.88}
+.bs{background:var(--surface);color:var(--g700);border:1px solid var(--g200);box-shadow:var(--shadow-sm)}.bs:hover{background:var(--g50);border-color:var(--g300)}.bs:active{background:var(--g100)}
+.bg{background:transparent;color:var(--g500);padding:6px 10px;font-size:12px;box-shadow:none}.bg:hover{background:var(--g100);color:var(--g700)}.bg:active{background:var(--g200)}
+.bd{background:transparent;color:var(--r500);padding:6px;min-width:30px;min-height:30px;display:inline-flex;align-items:center;justify-content:center;border-radius:var(--rad);box-shadow:none}.bd:hover{background:var(--r50)}.bd:active{background:var(--r50)}
+.bsm{padding:6px 12px;font-size:12px}.bxsm{padding:4px 9px;font-size:11px}
+
+/* ── INPUTS ── */
+input,select,textarea{font-family:var(--fn);font-size:16px;padding:10px 13px;border:1.5px solid var(--g200);border-radius:var(--rad);background:var(--surface);color:var(--g800);width:100%;outline:none;-webkit-appearance:none;appearance:none;transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--s400);box-shadow:0 0 0 3px rgba(61,122,61,.12)}
+input::placeholder{color:var(--g400)}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239ba3af'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:34px}
+
+/* Inline editable planned amount — 16px min to prevent iOS zoom */
+.ei{border:none;background:transparent;border-radius:6px;padding:3px 6px;width:110px;text-align:right;font-weight:600;font-size:16px;cursor:text;-webkit-appearance:none;color:var(--g700);font-variant-numeric:tabular-nums;transition:background .12s}
+.ei:hover{background:var(--g100)}
+.ei:focus{background:var(--surface);box-shadow:0 0 0 2px var(--s400);outline:none}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--g200);border-radius:var(--radxl);box-shadow:var(--shadow-sm)}
+
+/* ── LABELS ── */
+.lbl{display:block;font-size:11px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+
+/* ── BADGES ── */
+.badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px}
+.b1{background:#fef2f2;color:#b91c1c}.b2{background:#fff7ed;color:#c2410c}.b3{background:#fefce8;color:#a16207}
+.b4{background:#f0fdf4;color:#15803d}.b5{background:#eff6ff;color:#1d4ed8}.bcat{background:var(--s50);color:var(--s600)}
+
+/* ── PROGRESS BARS ── */
+.prog{background:var(--g100);border-radius:99px;height:4px;overflow:hidden}
+.pf{height:100%;border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.pg{background:var(--s400)}.pw{background:#f6c90e}.pr{background:var(--r500)}
+
+/* ── HEADER (mobile) ── */
+.header{background:var(--surface);border-bottom:1px solid var(--g100);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+
+/* ── BOTTOM NAV (mobile) ── */
+.bnav{background:var(--surface);border-top:1px solid var(--g100);display:flex;position:sticky;bottom:0;z-index:50;padding-bottom:var(--sb)}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px 10px;border:none;background:transparent;font-family:var(--fn);font-size:10px;font-weight:500;color:var(--g400);cursor:pointer;gap:2px;touch-action:manipulation;min-height:56px}
+.nb.act{color:var(--s500)}
+.nb-icon{font-size:20px;width:38px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:background .15s}
+.nb.act .nb-icon{background:var(--s50)}
+
+/* ── CONTENT ── */
+.content{flex:1;padding:20px 16px;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:80px}
+
+/* ── SECTION HEADERS ── */
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.st{font-size:15px;font-weight:700;color:var(--g800)}
+.ss{font-size:12px;color:var(--g500);margin-top:1px}
+
+/* ── METRIC CARDS ── */
+.met{padding:16px 20px}
+.ml{font-size:11px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.mv{font-size:22px;font-weight:700;color:var(--g800);font-variant-numeric:tabular-nums}
+
+/* ── INCOME BAR ── */
+.ibar{background:linear-gradient(135deg,var(--s500) 0%,var(--s600) 100%);border-radius:var(--radxl);padding:18px 20px;margin-bottom:20px;color:#fff}
+.ibar-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.iv{font-size:32px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+.il{font-size:10px;font-weight:600;opacity:.65;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+.iedit{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);color:#fff;border-radius:var(--rad);padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--fn);transition:background .15s}
+.iedit:hover{background:rgba(255,255,255,.28)}
+.iinput{background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.35);border-radius:var(--rad);padding:8px 12px;font-size:24px;font-weight:700;color:#fff;width:100%;font-family:var(--fn);outline:none;margin-top:6px;-webkit-appearance:none;-webkit-text-size-adjust:100%}
+.ibar-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:2px}
+.istat{background:rgba(255,255,255,.13);border-radius:10px;padding:10px 14px}
+.istat-l{font-size:10px;font-weight:500;opacity:.7;margin-bottom:3px}
+.istat-v{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
+
+/* ── BUDGET ROWS — Monarch-style data rows ── */
+.brow{padding:14px 18px;border-bottom:1px solid var(--g100);display:flex;align-items:center;gap:14px;transition:background .1s}
+.brow:last-child{border-bottom:none}
+.brow:hover{background:var(--g50)}
+.brow-l{flex:1;min-width:0}
+.brow-r{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
+/* Category icon circle — Monarch style */
+.brow-ico{width:36px;height:36px;border-radius:10px;background:var(--g100);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+
+/* ── TRANSACTION ROWS ── */
+.txr{display:flex;align-items:center;padding:13px 18px;border-bottom:1px solid var(--g100);gap:14px;transition:background .1s}
+.txr:last-child{border-bottom:none}
+.txr:hover{background:var(--g50)}
+.tx-ico{width:38px;height:38px;border-radius:10px;background:var(--g100);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.tx-b{flex:1;min-width:0}
+.tx-m{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--g800)}
+.tx-meta{font-size:12px;color:var(--g500);margin-top:2px}
+
+/* ── TIER GROUPS (settings) ── */
+.tg{border:1px solid var(--g200);border-radius:var(--radl);overflow:hidden;margin-bottom:8px}
+.tgh{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--surface);cursor:pointer;min-height:50px;transition:background .1s}
+.tgh:hover{background:var(--g50)}
+.tb2{border-top:1px solid var(--g100);background:var(--g50)}
+.er{display:flex;align-items:center;padding:11px 16px;border-bottom:1px solid var(--g100);gap:10px;background:var(--surface)}
+.er:last-child{border-bottom:none}
+.er-b{flex:1;min-width:0}
+.er-n{font-size:14px;font-weight:500;color:var(--g800)}
+.er-c{font-size:12px;color:var(--g500);margin-top:1px}
+.er-r{display:flex;align-items:center;gap:6px;flex-shrink:0}
+
+/* ── DEBT CARDS ── */
+.dc{border:1px solid var(--g200);border-radius:var(--radl);padding:16px;margin-bottom:10px;background:var(--surface);box-shadow:var(--shadow-sm)}
+.dc.focus{border:2px solid #f6c90e;background:linear-gradient(135deg,#fffbeb,#fff)}
+.sbrank{width:30px;height:30px;border-radius:50%;background:var(--s500);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.sbrank.f{background:#f6c90e;width:34px;height:34px;font-size:14px;box-shadow:0 0 0 4px rgba(246,201,14,.22)}
+
+/* ── SAVINGS ── */
+.bucket{padding:14px 18px;border-bottom:1px solid var(--g100);transition:background .1s}
+.bucket:last-child{border-bottom:none}
+.bucket:hover{background:var(--g50)}
+.bbar{background:var(--g100);border-radius:99px;height:6px;overflow:hidden;margin:8px 0 4px}
+.bfill{height:100%;border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.stack-bar{height:12px;border-radius:99px;overflow:hidden;display:flex;gap:1px;background:var(--g100)}
+.unassigned{background:var(--y50);border:1px solid var(--y400);border-radius:6px;padding:2px 8px;font-size:12px;color:var(--y600);font-weight:500;display:inline-block;margin-top:3px}
+.warn-banner{background:#fffbeb;border:1px solid #f6c90e;border-radius:var(--rad);padding:10px 14px;font-size:13px;color:#92400e;display:flex;align-items:flex-start;gap:8px;margin-bottom:12px}
+
+/* ── MODALS ── */
+.modal-bg{position:fixed;inset:0;background:rgba(15,20,30,.5);display:flex;align-items:flex-end;justify-content:center;z-index:100;backdrop-filter:blur(2px)}
+.modal{background:var(--surface);border-radius:20px 20px 0 0;padding:6px 20px 20px;width:100%;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(20px + var(--sb))}
+.modal-handle{width:36px;height:4px;background:var(--g200);border-radius:2px;margin:0 auto 20px}
+.mt2{font-size:19px;font-weight:700;color:var(--g800);margin-bottom:16px}
+
+/* ── ALERTS ── */
+.alert-bg{position:fixed;inset:0;background:rgba(15,20,30,.5);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;backdrop-filter:blur(2px)}
+.alert-box{background:var(--surface);border-radius:var(--radxl);padding:28px 24px;width:100%;max-width:340px;text-align:center;box-shadow:var(--shadow-lg)}
+
+/* ── WIZARD ── */
+.gw{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;background:var(--bg)}
+.gw-top{padding:14px 16px 0;background:var(--surface);border-bottom:1px solid var(--g100)}
+.gw-pb{background:var(--g200);border-radius:99px;height:3px;margin:12px 0 0}
+.gw-pf{height:100%;background:var(--s400);border-radius:99px;transition:width .4s}
+.gw-body{flex:1;padding:28px 20px;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:100px}
+.gw-q{font-size:24px;font-weight:700;color:var(--g800);margin-bottom:8px;line-height:1.25}
+.gw-sub{font-size:15px;color:var(--g500);margin-bottom:24px;line-height:1.6}
+.gw-foot{padding:14px 20px;background:var(--surface);border-top:1px solid var(--g100);display:flex;gap:10px;padding-bottom:calc(14px + var(--sb));position:sticky;bottom:0}
+.yn{flex:1;padding:16px 12px;border:1.5px solid var(--g200);border-radius:var(--radl);background:var(--surface);cursor:pointer;font-family:var(--fn);font-size:15px;font-weight:500;text-align:center;touch-action:manipulation;-webkit-appearance:none;transition:all .15s;color:var(--g700)}
+.yn:hover{border-color:var(--g300);background:var(--g50)}
+.yn.sel{border-color:var(--s500);background:var(--s50);color:var(--s600);font-weight:600}
+.gw-amt{font-size:32px;font-weight:700;padding:14px 16px;border:1.5px solid var(--g200);border-radius:var(--radl);text-align:center;width:100%;-webkit-appearance:none;background:var(--surface);color:var(--g800);font-variant-numeric:tabular-nums;-webkit-text-size-adjust:100%}
+.gw-amt:focus{border-color:var(--s400);box-shadow:0 0 0 3px rgba(61,122,61,.12);outline:none}
+.chev{font-size:11px;color:var(--g400);transition:transform .2s;display:inline-block}
+.chev.op{transform:rotate(180deg)}
+.chip{font-size:13px;padding:8px 14px;border:1.5px solid var(--g200);border-radius:20px;background:var(--surface);cursor:pointer;color:var(--g600);touch-action:manipulation;display:inline-flex;align-items:center;gap:5px;transition:all .15s;font-weight:500}
+.chip:hover{border-color:var(--g300);background:var(--g50)}
+.chip:active,.chip.sel{border-color:var(--s500);background:var(--s50);color:var(--s500);font-weight:600}
+
+/* ── UTILS ── */
+.pos{color:#2f855a}.neg{color:var(--r500)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.q-steps{display:flex;gap:5px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+.q-steps::-webkit-scrollbar{display:none}
+.q-step{height:4px;border-radius:99px;background:var(--g200);flex-shrink:0;transition:all .3s;width:22px}
+.q-step.done{background:var(--s400)}.q-step.cur{background:var(--s500);width:30px}
+.sub-item{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--g100)}
+.sub-item:last-child{border-bottom:none}
+.tip{background:var(--s50);border:1px solid var(--s100);border-radius:var(--rad);padding:10px 13px;font-size:13px;color:var(--s600);margin-top:6px;line-height:1.55}
+
+/* ── LANDING ── */
+.land{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;background:var(--bg)}
+.land-inner{width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center}
+
+/* ── SPLIT ROW ── */
+.split-row{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--g100)}
+.split-row:last-child{border-bottom:none}
+
+/* ── MOBILE DEFAULTS for desktop layout classes ── */
+.desk-outer{display:contents}
+.desk-wrap{display:contents}
+.home-grid{display:block}
+.home-grid-full{}
+.settings-grid{display:block}
+.nb-settings{border-top:1px solid var(--g100);padding-top:4px}
+.bnav-brand{display:none!important}
+.nb-settings .nb{margin:0;border-radius:0;width:auto}
+.freq-eq{font-size:13px;color:var(--s500);font-weight:500;margin-top:8px;padding:8px 12px;background:var(--s50);border-radius:var(--rad)}
+/* Mobile: hide desktop-only elements */
+.desk-col-headers{display:none!important}
+.desk-row-planned{display:none!important}
+.desk-row-remaining{display:none!important}
+.mobile-row-right{display:flex!important}
+
+/* ── DESKTOP (≥768px) ── */
+@media(min-width:768px){
+  body{background:var(--bg);height:100%;overflow:hidden}
+  html{height:100%;overflow:hidden}
+  .app{flex-direction:row;height:100vh;overflow:hidden}
+
+  /* Sidebar */
+  .bnav{
+    flex-direction:column;position:relative;height:100vh;width:240px;
+    border-top:none;border-right:1px solid var(--g200);padding:0;
+    background:var(--surface);justify-content:flex-start;flex-shrink:0;z-index:50;
+    box-shadow:1px 0 0 var(--g200);overflow:hidden;order:-1
+  }
+  .bnav-brand{
+    display:flex!important;align-items:center;gap:10px;padding:22px 20px 18px;
+    border-bottom:1px solid var(--g100);margin-bottom:6px
+  }
+  .nb{flex-direction:row;justify-content:flex-start;padding:10px 16px;gap:12px;
+    font-size:14px;font-weight:500;min-height:auto;border-radius:var(--rad);margin:2px 8px;width:calc(100% - 16px);color:var(--g600)}
+  .nb:hover{background:var(--g50);color:var(--g800)}
+  .nb-icon{width:30px;height:30px;font-size:17px;border-radius:7px;flex-shrink:0}
+  .nb.act{color:var(--s600);background:var(--s50);font-weight:600}
+  .nb.act .nb-icon{background:var(--s100)}
+  .nb-settings{border-top:1px solid var(--g100);padding-top:8px;margin-top:auto;padding-bottom:12px}
+  .nb-settings .nb{margin:2px 8px;width:calc(100% - 16px)}
+
+  /* Main content area */
+  .desk-outer{display:flex;flex:1;overflow-y:auto;min-width:0;background:var(--bg)}
+  .desk-wrap{display:block;width:100%;max-width:1080px;margin:0 auto;padding:36px 40px 60px}
+
+  /* Desktop header — inline, not sticky */
+  .header{position:static;background:transparent;border-bottom:none;padding:0 0 28px;box-shadow:none}
+
+  /* Content — no internal scroll on desktop */
+  .content{padding:0;overflow-y:visible;padding-bottom:0}
+
+  /* Two-column home */
+  .home-grid{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start}
+  .home-grid-full{grid-column:1/-1}
+
+  /* Budget rows — slightly more padding */
+  .brow{padding:14px 20px}
+
+  /* Planned input — Monarch style: clean number, dashed underline hint */
+  .ei{font-size:16px!important;font-weight:700!important;width:120px!important;padding:4px 6px!important;
+    border-bottom:1.5px dashed var(--g300)!important;border-radius:0!important;
+    background:transparent!important;cursor:text!important;color:var(--g700)!important}
+  .ei:hover{border-bottom-color:var(--s400)!important}
+  .ei:focus{border-bottom:2px solid var(--s500)!important;background:transparent!important;box-shadow:none!important}
+
+  /* Cards on desktop get a slightly stronger shadow on hover */
+  .card:hover{box-shadow:var(--shadow-md)}
+
+  /* Modal — centered dialog */
+  .modal-bg{align-items:center}
+  .modal{border-radius:var(--radxl);max-width:500px;padding:28px 32px 32px}
+  .modal-handle{display:none}
+
+  /* Settings grid */
+  .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+
+  .land{background:var(--bg)}
+  /* Desktop: show column layout, hide mobile inline amounts */
+  .desk-col-headers{display:flex!important}
+  .desk-row-planned{display:block!important}
+  .desk-row-remaining{display:block!important}
+  .mobile-row-right{display:none!important}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const uid=()=>Math.random().toString(36).slice(2,9)
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December']
+const MS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+const fmt=n=>'$'+(parseFloat(n)||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})
+const mAmt=e=>e.frequency==='annual'?e.amount/12:e.amount
+const mk=(m,y)=>`${MS[m]}-${y}`
+const CATEMO={Housing:'🏠',Groceries:'🛒',Utilities:'💡',Transportation:'🚗',Car:'🚗',Phones:'📱',Insurance:'🛡️',Childcare:'👶',Restaurants:'🍽️',Subscriptions:'📺',Entertainment:'🎮',Debt:'💳',Savings:'🐷',Medical:'💊',Shopping:'🛍️'}
+const getEmoji=c=>CATEMO[c]||'💰'
+
+const FREQ_OPTIONS=[
+  {val:'weekly',   label:'Weekly'},
+  {val:'biweekly', label:'Every 2 weeks'},
+  {val:'monthly',  label:'Monthly'},
+  {val:'bimonthly',label:'Every 2 months'},
+  {val:'quarterly',label:'Quarterly (÷3)'},
+  {val:'annual',   label:'Annual (÷12)'},
+]
+function freqToMonthly(amount,freq){
+  const a=parseFloat(amount)||0
+  if(freq==='weekly')    return a*4.33
+  if(freq==='biweekly')  return a*2.17
+  if(freq==='monthly')   return a
+  if(freq==='bimonthly') return a/2
+  if(freq==='quarterly') return a/3
+  if(freq==='annual')    return a/12
+  return a
+}
+
+const TIERS=[
+  {key:'5',short:'Survival',  badge:'b5',note:'Non-negotiable — pay before anything else.'},
+  {key:'4',short:'Essential', badge:'b4',note:'High priority but slightly flexible.'},
+  {key:'3',short:'Financial Health',badge:'b3',note:'Investing in your future.'},
+  {key:'2',short:'Lifestyle', badge:'b2',note:'Cut first if money gets tight.'},
+  {key:'1',short:'Discretionary',badge:'b1',note:'Purely optional spending.'},
+]
+const BC=['#6a9e6a','#e08060','#5b8fd4','#9b72b0','#d4a847','#5bbfbf','#d47272']
+const MC=['#c0d9c0','#f5c9b6','#bfdbfe','#ddd6fe','#fde68a']
+const MT=['#3a6139','#c05a38','#1d4ed8','#6d28d9','#92400e']
+
+const SUB_CATS=[
+  {id:'streaming',label:'Streaming',  icon:'📺',suggestions:['Netflix','Disney+','Hulu','HBO Max','Apple TV+','Peacock','Paramount+','Spotify','Apple Music','YouTube Premium']},
+  {id:'fitness',  label:'Fitness',    icon:'💪',suggestions:['Gym Membership','Peloton','Planet Fitness','CrossFit','ClassPass','Yoga Studio']},
+  {id:'software', label:'Software',   icon:'💻',suggestions:['Adobe CC','Microsoft 365','iCloud Storage','Google One','Dropbox','Notion','ChatGPT Plus','Canva']},
+  {id:'shopping', label:'Shopping',   icon:'🛍️',suggestions:['Amazon Prime','Costco','Sam\'s Club']},
+  {id:'news',     label:'News & Info',icon:'📰',suggestions:['NY Times','Wall Street Journal','Audible','Kindle Unlimited']},
+  {id:'other',    label:'Other',      icon:'📦',suggestions:[]},
+]
+
+const STEPS=[
+  {id:'income',    type:'amount-open',  label:'Income',        icon:'💰',q:'What is your monthly take-home income?',      sub:'After taxes — or your best estimate. You can update anytime.'},
+  {id:'rent',      type:'yn',           label:'Rent/Mortgage', icon:'🏠',q:'Do you pay rent or a mortgage?',              sub:'',
+   sub_steps:[{id:'rent_amt',      q:'How much is your rent or mortgage?',            sub:'Usually your largest monthly expense.',    item:'Rent / Mortgage',    category:'Housing',       tier:'5',tip:'Aim to keep housing under 30% of gross income.'}]},
+  {id:'utilities', type:'yn',           label:'Utilities',     icon:'💡',q:'Do you pay for utilities?',                   sub:'Electricity, gas, water, trash.',
+   sub_steps:[
+     {id:'elec_amt',   q:'How much is your electricity bill?',         sub:'Monthly average — check last 3 months.',     item:'Electricity',        category:'Utilities',     tier:'5',tip:'Average US household pays ~$120/mo.',hasFreq:true},
+     {id:'water_amt',  q:'How much is your water / sewer bill?',       sub:'Include sewer if billed together.',           item:'Water / Sewer',      category:'Utilities',     tier:'5',tip:'Typically $30–70/mo for most households.',hasFreq:true},
+     {id:'trash_amt',  q:'How much is your trash & recycling service?',sub:'Many services bill every 2 months or quarterly — we\'ll convert to monthly for you.',item:'Trash / Recycling',category:'Utilities',tier:'5',tip:'Usually $20–50/mo equivalent.',hasFreq:true},
+   ]},
+  {id:'internet',  type:'yn',           label:'Internet',      icon:'📶',q:'Do you pay for internet or cable?',           sub:'',
+   sub_steps:[{id:'internet_amt',  q:'How much is your internet / cable bill?',       sub:'',                                        item:'Internet / Cable',   category:'Utilities',     tier:'4',tip:'Call your provider annually — retention teams often offer discounts.',hasFreq:true}]},
+  {id:'groceries', type:'yn',           label:'Groceries',     icon:'🛒',q:'Do you buy groceries?',                       sub:"(We know — seems like a silly question, but some people eat out exclusively and we thought we'd check! 😄)",
+   sub_steps:[{id:'groc_amt',      q:'How much do you spend on groceries per month?', sub:'Think of a typical week × 4.',            item:'Groceries',          category:'Groceries',     tier:'5',tip:'$200–400/mo per adult is typical. Meal planning cuts waste significantly.'}]},
+  {id:'car_ins',   type:'yn',           label:'Car Insurance', icon:'🚗',q:'Do you have car insurance?',                  sub:'',
+   sub_steps:[{id:'car_ins_amt',   q:'How much is your car insurance?',               sub:'If you pay every 6 months, divide by 6.', item:'Car Insurance',      category:'Car',           tier:'4',tip:'Shop rates annually — switching can save 15–25%.',hasFreq:true}]},
+  {id:'car_pay',   type:'yn',           label:'Car Payment',   icon:'🚙',q:'Do you have a car payment?',                  sub:'Monthly auto loan.',
+   sub_steps:[{id:'car_pay_amt',   q:'How much is your car payment per month?',       sub:'Loan only — not gas or insurance.',        item:'Car Payment',        category:'Car',           tier:'5',tip:"If it's a loan, add it to the Debt tracker too."}]},
+  {id:'gas',       type:'yn',           label:'Gas / Transit', icon:'⛽',q:'Do you pay for gas or transit?',              sub:'',
+   sub_steps:[{id:'gas_amt',       q:'How much do you spend on gas or transit?',      sub:'Track a few fill-ups for accuracy.',       item:'Gas / Transit',      category:'Transportation',tier:'5',tip:'Include parking and tolls if applicable.',hasFreq:true}]},
+  {id:'phone',     type:'yn',           label:'Phone',         icon:'📱',q:'Do you pay a phone bill?',                    sub:'Monthly cell service for all lines.',
+   sub_steps:[{id:'phone_amt',     q:'How much is your total monthly phone bill?',    sub:'Include all lines on the account.',        item:'Phone Bill',         category:'Phones',        tier:'4',tip:'Family plans are cheaper per line. Ask about employer discounts.'}]},
+  {id:'health',    type:'yn',           label:'Health Ins.',   icon:'🏥',q:'Do you pay for health insurance?',            sub:'Premiums out of pocket or paycheck.',
+   sub_steps:[{id:'health_amt',    q:'How much do you pay for health insurance?',     sub:'Include premiums, not just deductibles.',  item:'Health Insurance',   category:'Insurance',     tier:'4',tip:"Factor in co-pays for your family's usage.",hasFreq:true}]},
+  {id:'childcare', type:'yn',           label:'Childcare',     icon:'👶',q:'Do you pay for childcare or daycare?',        sub:'',
+   sub_steps:[{id:'childcare_amt', q:'How much do you spend on childcare per month?', sub:'One of the largest family expenses.',      item:'Childcare / Daycare',category:'Childcare',     tier:'4',tip:'Ask your employer about a Dependent Care FSA — pre-tax savings.'}]},
+  {id:'dining',    type:'yn',           label:'Dining Out',    icon:'🍽️',q:'Do you eat out or order food delivery?',    sub:"Anything you didn't cook at home.",
+   sub_steps:[{id:'dining_amt',    q:'How much do you spend dining out per month?',   sub:'Restaurants, coffee, fast food, delivery apps.',item:'Dining Out',      category:'Restaurants',   tier:'2',tip:'Often the #1 budget leak — check your bank statement.'}]},
+  {id:'subs',      type:'yn',           label:'Subscriptions', icon:'📺',q:'Do you pay for any subscriptions?',           sub:'Streaming, fitness, software, memberships.',is_subs:true},
+  {id:'debt',      type:'yn',           label:'Debt',          icon:'💳',q:'Do you have any debt?',                       sub:'Credit cards, loans, car notes, student loans.',is_debt:true},
+  {id:'savings',   type:'savings_setup',label:'Savings',       icon:'🪣',q:"Let's set up your savings account.",          sub:'Name your account then divide it into purpose-driven buckets.'},
+]
+
+function buildExpenses(ans,subs){
+  const exps=[]
+  STEPS.forEach(s=>{
+    if(s.type==='yn'&&!s.is_subs&&!s.is_debt&&ans[s.id]==='yes'){
+      (s.sub_steps||[]).forEach(ss=>{
+        const v=parseFloat(ans[ss.id])||0
+        const freq=ans[ss.id+'_freq']||'monthly'
+        const monthly=freqToMonthly(v,freq)
+        if(monthly>0)exps.push({id:uid(),tier:ss.tier,category:ss.category,item:ss.item,amount:monthly,frequency:'monthly',tip:ss.tip||''})
+      })
+    }
+  })
+  subs.forEach(sub=>{if(sub.amount>0)exps.push({id:uid(),tier:'2',category:'Subscriptions',item:sub.name,amount:sub.amount,frequency:'monthly',tip:''})})
+  return exps
+}
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+const STATE_VERSION = 3  // bump when data shape changes incompatibly
+const STORAGE_KEY   = 'bt_state_v' + STATE_VERSION
+// Keys that belong to the USER — persisted across sessions and app updates
+const PERSIST_KEYS  = ['name','members','expenses','debts','goals','savingsLog',
+                        'transactions','acctName','acctBalance','globalIncome',
+                        'monthIncome','monthOverrides','screen','tab']
+
+const DEFAULT_S = {
+  screen:'landing',
+  gwIdx:0,gwSubIdx:-1,gwAns:{},gwSubs:[],gwSubsSelectedCats:{},gwDebtsTemp:[],
+  name:'',members:[],
+  expenses:[],debts:[],
+  goals:[{id:uid(),name:'Emergency Fund',targetAmount:3000,currentAmount:0,note:'3–6 months of living expenses'}],
+  savingsLog:[],transactions:[],
+  acctName:'Savings Account',acctBalance:0,
+  bMonth:new Date().getMonth(),bYear:new Date().getFullYear(),
+  tab:'home',openTiers:{},
+  modal:null,alert:null,
+  globalIncome:0,monthIncome:{},monthOverrides:{},
+  editingIncome:false,showSettings:false,
+  coachMark:null,
+}
+
+function loadState(){
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY)
+    if(!raw)return{...DEFAULT_S}
+    const saved=JSON.parse(raw)
+    const merged={...DEFAULT_S}
+    PERSIST_KEYS.forEach(k=>{if(saved[k]!==undefined)merged[k]=saved[k]})
+    // Always reset transient UI state
+    merged.modal=null;merged.alert=null;merged.editingIncome=false
+    merged.showSettings=false;merged.coachMark=null
+    merged.gwIdx=0;merged.gwSubIdx=-1;merged.gwAns={}
+    merged.gwSubs=[];merged.gwSubsSelectedCats={};merged.gwDebtsTemp=[]
+    merged.openTiers={}
+    // If they completed setup, land on dashboard not landing page
+    if(merged.screen==='landing'&&merged.name)merged.screen='dashboard'
+    return merged
+  }catch(e){
+    console.warn('Failed to load state:',e)
+    return{...DEFAULT_S}
+  }
+}
+
+function saveState(){
+  try{
+    const toSave={}
+    PERSIST_KEYS.forEach(k=>{toSave[k]=S[k]})
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(toSave))
+  }catch(e){
+    console.warn('Failed to save state:',e)
+  }
+}
+
+let S = loadState()
+
+function getIncome(m,y){return S.monthIncome[mk(m,y)]??S.globalIncome??0}
+function setIncome(m,y,v){S.monthIncome[mk(m,y)]=parseFloat(v)||0}
+function getPlanned(cat,m,y){
+  const k=mk(m,y)
+  if(S.monthOverrides[k]&&S.monthOverrides[k][cat]!==undefined)return S.monthOverrides[k][cat]
+  return S.expenses.filter(e=>e.category===cat).reduce((s,e)=>s+mAmt(e),0)
+}
+function setPlanned(cat,m,y,v){const k=mk(m,y);if(!S.monthOverrides[k])S.monthOverrides[k]={};S.monthOverrides[k][cat]=parseFloat(v)||0}
+function isOvr(cat,m,y){const k=mk(m,y);return!!(S.monthOverrides[k]&&S.monthOverrides[k][cat]!==undefined)}
+function syncDebt(){
+  const tot=S.debts.reduce((s,d)=>s+(d.min||0),0)
+  S.expenses=S.expenses.filter(e=>!e._da)
+  if(tot>0)S.expenses.push({id:'da',_da:true,tier:'3',category:'Debt',item:'Debt Minimums (all)',amount:tot,frequency:'monthly',tip:'Combined minimums — see Debt tab for payoff plan.'})
+}
+
+// ── CRITICAL: Save wizard inputs BEFORE any render ────────────────────────
+// We read directly from DOM before re-rendering so the user's typed value is preserved
+function saveWizardInputs(){
+  const mainEl=document.getElementById('gw-main')
+  if(mainEl){
+    const step=STEPS[S.gwIdx]
+    const isSubStep=S.gwSubIdx>=0
+    if(!isSubStep&&step.id==='income'){
+      S.gwAns['income']=mainEl.value
+    } else if(isSubStep&&step.sub_steps){
+      const ss=step.sub_steps[S.gwSubIdx]
+      if(ss) S.gwAns[ss.id]=mainEl.value
+    }
+  }
+  // frequency select
+  const freqEl=document.getElementById('gw-freq')
+  if(freqEl){
+    const step=STEPS[S.gwIdx]
+    if(S.gwSubIdx>=0&&step.sub_steps){
+      const ss=step.sub_steps[S.gwSubIdx]
+      if(ss) S.gwAns[ss.id+'_freq']=freqEl.value
+    }
+  }
+  // income bar edit
+  const iEl=document.getElementById('iinput')
+  if(iEl) setIncome(S.bMonth,S.bYear,iEl.value)
+}
+
+function render(){
+  saveWizardInputs()
+  saveState()
+  document.getElementById('app').innerHTML=
+    S.screen==='landing'?rLand():
+    S.screen==='guided'?rGuided():
+    S.screen==='manual'?rManual():
+    S.showSettings?rSettings():rDash()
+  attachL()
+}
+
+// ── LANDING ────────────────────────────────────────────────────────────────
+function rLand(){return`
+<div class="land">
+  <div class="land-inner">
+  <div style="width:72px;height:72px;background:var(--s100);border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:20px;box-shadow:0 4px 20px rgba(74,124,74,.18)">🌿</div>
+  <div style="font-size:32px;font-weight:700;margin-bottom:10px;color:var(--g800)">Budget Together</div>
+  <p style="font-size:15px;color:var(--g500);max-width:320px;margin-bottom:32px;line-height:1.65">Simple, flexible household budgeting — set up in minutes.</p>
+  <div class="g2" style="width:100%;margin-bottom:32px;text-align:left">
+    ${[['💬','Guided setup','One question at a time'],['❄️','Debt Snowball','Simple payoff strategy'],['🪣','Savings buckets','Every dollar has a job'],['📅','Live budget','Planned vs actual']].map(([i,t,d])=>`
+    <div class="card" style="padding:16px"><div style="font-size:22px;margin-bottom:6px">${i}</div>
+    <div style="font-size:13px;font-weight:600">${t}</div><div style="font-size:12px;color:var(--g400);margin-top:3px">${d}</div></div>`).join('')}
+  </div>
+  <button class="btn bp" style="width:100%;padding:17px;font-size:15px;font-weight:600;margin-bottom:12px;border-radius:14px" onclick="startGuided()">Walk me through it 💬</button>
+  <button class="btn bs" style="width:100%;padding:14px;font-size:13px;border-radius:14px" onclick="startManual()">I know my expenses — skip questions</button>
+  <p style="font-size:11px;color:var(--g300);margin-top:18px">Prototype · data stays in browser</p>
+  </div>
+</div>`}
+
+// ── GUIDED WIZARD ──────────────────────────────────────────────────────────
+function rGuided(){
+  const step=STEPS[S.gwIdx]
+  const isSubStep=S.gwSubIdx>=0
+  const curSub=isSubStep&&step.sub_steps?step.sub_steps[S.gwSubIdx]:null
+  const pct=Math.round(((S.gwIdx+(isSubStep?0.5:0))/STEPS.length)*100)
+
+  const dots=STEPS.map((s,i)=>`<div class="q-step ${i<S.gwIdx?'done':i===S.gwIdx?'cur':''}" title="${s.label}"></div>`).join('')
+
+  let body=''
+
+  // ── Income ──
+  if(step.id==='income'){
+    body=`<div class="gw-q">${step.q}</div>
+    <div class="gw-sub">${step.sub}</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <span style="font-size:26px;font-weight:600;color:var(--g300);font-family:var(--ff)">$</span>
+      <input class="gw-amt" type="number" inputmode="decimal" id="gw-main"
+        value="${S.gwAns['income']||''}" placeholder="0"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();gwNext()}"/>
+    </div>
+    <div class="tip">💡 Use your net pay (after taxes). If income varies, use a conservative monthly average.</div>`
+
+  // ── Savings setup ──
+  }else if(step.type==='savings_setup'){
+    const unalloc=S.acctBalance-S.goals.reduce((s,g)=>s+g.currentAmount,0)
+    body=`<div class="gw-q">${step.q}</div>
+    <div class="gw-sub">${step.sub}</div>
+    <div style="margin-bottom:14px"><span class="lbl">Account name</span>
+    <input value="${S.acctName}" onblur="S.acctName=this.value" placeholder="e.g. Wells Fargo HYSA"/></div>
+    <div style="margin-bottom:16px"><span class="lbl">Current balance ($)</span>
+    <input type="number" inputmode="decimal" value="${S.acctBalance||''}" onblur="S.acctBalance=parseFloat(this.value)||0" placeholder="0"/></div>
+    <div style="font-size:14px;font-weight:600;color:var(--g700);margin-bottom:10px">Now divide it into purpose-driven buckets:</div>
+    ${S.goals.map((g,i)=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--g100)">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="width:10px;height:10px;border-radius:50%;background:${BC[i%BC.length]};flex-shrink:0"></span>
+        <div><div style="font-size:14px;font-weight:500">${g.name}</div>
+        <div style="font-size:12px;color:var(--g400)">${fmt(g.currentAmount)} / ${fmt(g.targetAmount)}</div></div>
+      </div>
+      <div style="display:flex;gap:5px">
+        <button class="btn bg bxsm" onclick="openGoalModal('${g.id}')">✏️</button>
+        <button class="btn bd" onclick="rmGoal('${g.id}');render()">✕</button>
+      </div></div>`).join('')}
+    ${unalloc>0&&S.acctBalance>0?`<div style="padding:10px 12px;background:var(--s50);border-radius:var(--rad);font-size:13px;color:var(--s600);font-weight:500;margin-top:8px">💰 ${fmt(unalloc)} still unallocated — add more buckets below</div>`:''}
+    <button class="btn bs" style="width:100%;margin-top:12px;padding:13px" onclick="openGoalModal()">+ Add a bucket</button>`
+
+  // ── Subscriptions yn ──
+  }else if(step.is_subs&&!isSubStep){
+    const ans=S.gwAns['subs']
+    body=`<div class="gw-q">Do you pay for any subscriptions? 📺</div>
+    <div class="gw-sub">Streaming services, fitness, software, memberships.</div>
+    <div style="display:flex;gap:12px">
+      <button class="yn ${ans==='yes'?'sel':''}" onclick="gwSetYN('subs','yes')">✅ Yes</button>
+      <button class="yn ${ans==='no'?'sel':''}" onclick="gwSetYN('subs','no')">❌ No</button>
+    </div>`
+
+  // ── Subscriptions: pick categories ──
+  }else if(step.is_subs&&isSubStep&&S.gwSubIdx===0){
+    body=`<div class="gw-q">What types of subscriptions do you have?</div>
+    <div class="gw-sub">Select all that apply — we'll ask for specifics next.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+      ${SUB_CATS.map(c=>`<button class="chip ${S.gwSubsSelectedCats[c.id]?'sel':''}" onclick="toggleSubCat('${c.id}')">${c.icon} ${c.label}</button>`).join('')}
+    </div>`
+
+  // ── Subscriptions: fill per category ──
+  }else if(step.is_subs&&isSubStep&&S.gwSubIdx>0){
+    const selCats=SUB_CATS.filter(c=>S.gwSubsSelectedCats[c.id])
+    const cat=selCats[S.gwSubIdx-1]
+    if(!cat){gwNextInner();return'<div></div>'}
+    const existing=S.gwSubs.filter(s=>s.catId===cat.id)
+    body=`<div class="gw-q">${cat.icon} ${cat.label}</div>
+    <div class="gw-sub">Add each subscription and its monthly cost.</div>
+    ${existing.map((s,i)=>`<div class="sub-item">
+      <div style="flex:1"><div style="font-size:14px;font-weight:500">${s.name}</div></div>
+      <span style="font-size:14px;font-weight:600;color:var(--s600)">${fmt(s.amount)}/mo</span>
+      <button class="btn bd" onclick="rmSubByCat(${i},'${cat.id}');render()">✕</button>
+    </div>`).join('')}
+    ${cat.suggestions.length>0?`<div style="margin:8px 0 12px">
+      <div style="font-size:12px;color:var(--g400);margin-bottom:7px">Common ${cat.label}:</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${cat.suggestions.filter(s=>!existing.find(e=>e.name===s)).map(s=>`<button class="chip" onclick="quickAddSub('${cat.id}','${s.replace(/'/g,"&#39;")}')"">+ ${s}</button>`).join('')}
+      </div></div>`:''}
+    <div style="background:var(--g50);border-radius:var(--radl);padding:14px;margin-top:4px">
+      <div style="font-size:13px;font-weight:600;color:var(--g600);margin-bottom:10px">+ Add manually:</div>
+      <div style="margin-bottom:8px"><span class="lbl">Name</span><input id="sub-name" placeholder="Service name"/></div>
+      <div style="margin-bottom:8px"><span class="lbl">Amount ($)</span><input type="number" inputmode="decimal" id="sub-amt" placeholder="0"/></div>
+      <div style="margin-bottom:10px"><span class="lbl">Billing frequency</span>
+        <select id="sub-freq">
+          <option value="monthly">Monthly</option>
+          <option value="annual">Annually (÷12)</option>
+          <option value="quarterly">Quarterly (÷3)</option>
+        </select>
+      </div>
+      <button class="btn bp" style="width:100%" onclick="addSubItem('${cat.id}')">+ Add</button>
+    </div>`
+
+  // ── Debt yn ──
+  }else if(step.is_debt&&!isSubStep){
+    const ans=S.gwAns['debt']
+    const td=S.gwDebtsTemp.reduce((s,d)=>s+d.balance,0)
+    body=`<div class="gw-q">Do you have any debt? 💳</div>
+    <div class="gw-sub">Credit cards, loans, car notes, student loans. Minimums will auto-populate into your monthly budget.</div>
+    ${S.gwDebtsTemp.length>0?`<div style="background:var(--r50);border:1px solid var(--r300);border-radius:var(--rad);padding:14px;margin-bottom:14px">
+      <div style="font-size:13px;font-weight:600;color:var(--r600);margin-bottom:8px">${S.gwDebtsTemp.length} debt${S.gwDebtsTemp.length>1?'s':''} added</div>
+      ${S.gwDebtsTemp.map(d=>`<div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0">
+        <span>${d.name}</span><span class="neg" style="font-weight:600">${fmt(d.balance)}</span></div>`).join('')}
+      <div style="font-size:13px;font-weight:700;color:var(--r500);margin-top:8px;padding-top:8px;border-top:1px solid var(--r300)">Total: ${fmt(td)}</div>
+    </div>`:''}
+    <div style="display:flex;gap:12px">
+      <button class="yn ${ans==='yes'?'sel':''}" onclick="gwSetYN('debt','yes')">✅ Yes</button>
+      <button class="yn ${ans==='no'?'sel':''}" onclick="gwSetYN('debt','no')">❌ No</button>
+    </div>`
+
+  // ── Debt sub: add debts ──
+  }else if(step.is_debt&&isSubStep){
+    body=`<div class="gw-q">Tell me about your debts 💳</div>
+    <div class="gw-sub">Add each one. They'll sort smallest→largest for the payoff plan.</div>
+    ${S.gwDebtsTemp.map(d=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--g100)">
+      <div><div style="font-size:14px;font-weight:500">${d.name}</div>
+      <div style="font-size:12px;color:var(--g400)">Balance: ${fmt(d.balance)} · Min: ${d.min?fmt(d.min):'N/A'}</div></div>
+      <button class="btn bd" onclick="rmGwDebt('${d.id}');render()">✕</button></div>`).join('')}
+    <div style="background:var(--g50);border-radius:var(--radl);padding:14px;margin-top:12px">
+      <div style="font-size:13px;font-weight:600;color:var(--g700);margin-bottom:12px">+ Add a debt:</div>
+      <div style="margin-bottom:10px"><span class="lbl">Name</span><input id="d-name" placeholder="e.g. Chase Sapphire Card"/></div>
+      <div class="g2" style="margin-bottom:10px">
+        <div><span class="lbl">Balance ($)</span><input type="number" inputmode="decimal" id="d-bal" placeholder="0"/></div>
+        <div><span class="lbl">Min payment/mo</span><input type="number" inputmode="decimal" id="d-min" placeholder="0"/></div>
+      </div>
+      <div style="margin-bottom:12px"><span class="lbl">APR % (optional)</span><input type="number" inputmode="decimal" id="d-rate" step="0.1" placeholder="19.99"/></div>
+      <button class="btn bp" style="width:100%;padding:14px" onclick="gwAddDebt()">+ Add this debt</button>
+    </div>
+    <div class="tip" style="margin-top:12px">💡 Minimum payments will auto-appear in your monthly budget as "Debt Minimums".</div>`
+
+  // ── Standard yn ──
+  }else if(step.type==='yn'&&!isSubStep){
+    const ans=S.gwAns[step.id]
+    body=`<div class="gw-q">${step.q}</div>
+    ${step.sub?`<div class="gw-sub">${step.sub}</div>`:'<div style="margin-bottom:20px"></div>'}
+    <div style="display:flex;gap:12px">
+      <button class="yn ${ans==='yes'?'sel':''}" onclick="gwSetYN('${step.id}','yes')">✅ Yes</button>
+      <button class="yn ${ans==='no'?'sel':''}" onclick="gwSetYN('${step.id}','no')">❌ No</button>
+    </div>`
+
+  // ── Amount sub-step ──
+  }else if(isSubStep&&curSub){
+    const freqKey=curSub.id+'_freq'
+    const curFreq=S.gwAns[freqKey]||'monthly'
+    const rawAmt=parseFloat(S.gwAns[curSub.id])||0
+    const monthlyEq=rawAmt>0?freqToMonthly(rawAmt,curFreq):0
+    body=`<div class="gw-q">${curSub.q}</div>
+    ${curSub.sub?`<div class="gw-sub">${curSub.sub}</div>`:'<div style="margin-bottom:16px"></div>'}
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:${curSub.hasFreq?'10':'14'}px">
+      <span style="font-size:26px;font-weight:600;color:var(--g300);font-family:var(--ff)">$</span>
+      <input class="gw-amt" type="number" inputmode="decimal" id="gw-main"
+        value="${S.gwAns[curSub.id]||''}" placeholder="0"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();gwNext()}"/>
+    </div>
+    ${curSub.hasFreq?`<div style="margin-bottom:14px">
+      <span class="lbl">How often is this billed?</span>
+      <select id="gw-freq" onchange="S.gwAns['${freqKey}']=this.value;renderFreqEq()">
+        ${FREQ_OPTIONS.map(f=>`<option value="${f.val}" ${curFreq===f.val?'selected':''}>${f.label}</option>`).join('')}
+      </select>
+      <div id="freq-eq-display">${rawAmt>0&&curFreq!=='monthly'?`<div class="freq-eq">= ${fmt(monthlyEq)}/month equivalent</div>`:''}</div>
+    </div>`:''}
+    ${curSub.tip?`<div class="tip">💡 ${curSub.tip}</div>`:''}`
+  }
+
+  const isLast=S.gwIdx>=STEPS.length-1&&!isSubStep
+  return`<div class="gw">
+    <div class="gw-top">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="font-size:12px;color:var(--g400);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Budget Setup</span>
+        <span style="font-size:12px;color:var(--g400)">${step.label}</span>
+      </div>
+      <div class="q-steps">${dots}</div>
+      <div class="gw-pb" style="margin-bottom:0"><div class="gw-pf" style="width:${pct}%"></div></div>
+    </div>
+    <div class="gw-body">${body}</div>
+    <div class="gw-foot">
+      ${S.gwIdx>0||isSubStep?`<button class="btn bs" style="min-width:80px" onclick="gwBack()">← Back</button>`:''}
+      <button class="btn bp" style="flex:1;padding:14px;font-size:15px" onclick="gwNext()">${isLast?'Launch dashboard 🚀':'Next →'}</button>
+    </div>
+    ${S.modal?rModal():''}
+  </div>`}
+
+// Render just the freq eq display without full re-render
+function renderFreqEq(){
+  const freqEl=document.getElementById('gw-freq')
+  const amtEl=document.getElementById('gw-main')
+  const eqEl=document.getElementById('freq-eq-display')
+  if(!freqEl||!amtEl||!eqEl)return
+  const step=STEPS[S.gwIdx]
+  if(S.gwSubIdx>=0&&step.sub_steps){
+    const ss=step.sub_steps[S.gwSubIdx]
+    if(ss)S.gwAns[ss.id+'_freq']=freqEl.value
+  }
+  const freq=freqEl.value
+  const amt=parseFloat(amtEl.value)||0
+  const eq=freqToMonthly(amt,freq)
+  eqEl.innerHTML=amt>0&&freq!=='monthly'?`<div class="freq-eq">= ${fmt(eq)}/month equivalent</div>`:''
+}
+
+function gwSetYN(id,val){S.gwAns[id]=val;render()}
+function toggleSubCat(id){S.gwSubsSelectedCats[id]=!S.gwSubsSelectedCats[id];render()}
+function quickAddSub(catId,name){S.modal={type:'sub_amount',catId,name,amount:''};render()}
+function addSubItem(catId){
+  const name=document.getElementById('sub-name')?.value?.trim()
+  const amt=parseFloat(document.getElementById('sub-amt')?.value)||0
+  const freq=document.getElementById('sub-freq')?.value||'monthly'
+  if(!name)return
+  const monthly=freqToMonthly(amt,freq)
+  S.gwSubs.push({id:uid(),catId,name,amount:monthly});render()
+}
+function rmSubByCat(i,catId){
+  const items=S.gwSubs.filter(s=>s.catId===catId)
+  const item=items[i];if(item)S.gwSubs=S.gwSubs.filter(s=>s!==item)
+}
+function gwAddDebt(){
+  const name=document.getElementById('d-name')?.value?.trim()
+  const bal=parseFloat(document.getElementById('d-bal')?.value)||0
+  const min=parseFloat(document.getElementById('d-min')?.value)||0
+  const rate=document.getElementById('d-rate')?.value||''
+  if(!name)return
+  S.gwDebtsTemp.push({id:uid(),name,balance:bal,min:min||null,rate});render()
+}
+function rmGwDebt(id){S.gwDebtsTemp=S.gwDebtsTemp.filter(d=>d.id!==id);render()}
+
+function gwNextInner(){
+  const step=STEPS[S.gwIdx]
+  const isSubStep=S.gwSubIdx>=0
+  if(isSubStep){
+    if(step.is_subs){
+      const selCats=SUB_CATS.filter(c=>S.gwSubsSelectedCats[c.id])
+      if(S.gwSubIdx<=selCats.length-1){S.gwSubIdx++;render();return}
+    }else if(step.sub_steps&&S.gwSubIdx<step.sub_steps.length-1){
+      S.gwSubIdx++;render();return
+    }
+    S.gwSubIdx=-1;S.gwIdx++
+    if(S.gwIdx>=STEPS.length){gwFinish();return}
+    render();return
+  }
+  if(step.type==='yn'&&S.gwAns[step.id]==='yes'&&step.sub_steps&&step.sub_steps.length>0){S.gwSubIdx=0;render();return}
+  if(step.is_subs&&S.gwAns['subs']==='yes'){S.gwSubIdx=0;render();return}
+  if(step.is_debt&&S.gwAns['debt']==='yes'&&S.gwSubIdx<0){S.gwSubIdx=0;render();return}
+  S.gwIdx++
+  if(S.gwIdx>=STEPS.length){gwFinish();return}
+  render()
+}
+
+function gwNext(){
+  saveWizardInputs()
+  // Small delay so mobile keyboard doesn't fight the transition
+  setTimeout(gwNextInner,50)
+}
+
+function gwBack(){
+  saveWizardInputs()
+  setTimeout(()=>{
+    if(S.gwSubIdx>0){S.gwSubIdx--;render();return}
+    if(S.gwSubIdx===0){S.gwSubIdx=-1;render();return}
+    if(S.gwIdx>0){S.gwIdx--;render();return}
+  },50)
+}
+
+function gwFinish(){
+  S.expenses=buildExpenses(S.gwAns,S.gwSubs)
+  S.debts=S.gwDebtsTemp
+  syncDebt()
+  const inc=parseFloat(S.gwAns['income'])||0
+  S.globalIncome=inc
+  setIncome(S.bMonth,S.bYear,inc)
+  S.screen='dashboard';S.tab='home'
+  maybeShowCoach('home')
+  render()
+}
+
+// ── MANUAL ─────────────────────────────────────────────────────────────────
+function rManual(){return`
+<div style="padding:16px;padding-bottom:80px">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+    <button class="btn bg" onclick="go('landing')" style="padding:8px 12px">←</button>
+    <div style="font-family:var(--ff);font-size:18px;font-weight:600">Quick Setup</div>
+  </div>
+  <div class="card" style="padding:16px;margin-bottom:14px">
+    <div style="font-family:var(--ff);font-size:15px;font-weight:600;margin-bottom:12px">💰 Monthly Income</div>
+    <span class="lbl">Take-home income (after taxes)</span>
+    <input type="number" inputmode="decimal" value="${S.globalIncome||''}" placeholder="e.g. 5000"
+      onblur="S.globalIncome=parseFloat(this.value)||0"/>
+  </div>
+  ${TIERS.map(t=>{
+    const items=S.expenses.filter(e=>e.tier===t.key&&!e._da)
+    const open=!!S.openTiers[t.key]
+    return`<div class="tg">
+      <div class="tgh" onclick="togTier('${t.key}')">
+        <div style="display:flex;align-items:center;gap:8px"><span class="badge ${t.badge}">Tier ${t.key}</span><span style="font-size:13px;font-weight:500">${t.short}</span></div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="font-size:13px;font-weight:600">${fmt(items.reduce((s,e)=>s+mAmt(e),0))}/mo</span><span class="chev ${open?'op':''}">▾</span></div>
+      </div>
+      ${open?`<div class="tb2">
+        ${items.map(e=>`<div class="er">
+          <div class="er-b"><div class="er-n">${e.item}</div><div class="er-c">${e.category}</div></div>
+          <div class="er-r"><span style="font-size:14px;font-weight:600">${fmt(e.amount)}</span>
+          <button class="btn bd bxsm" onclick="rmExp('${e.id}');render()">✕</button></div>
+        </div>`).join('')}
+        <div style="padding:10px 14px"><button class="btn bs bsm" style="width:100%" onclick="openAddExpModal('${t.key}')">+ Add</button></div>
+      </div>`:''}</div>`}).join('')}
+  <div style="margin-top:14px;padding:16px;background:#fff;border:1px solid var(--g100);border-radius:var(--radl)">
+    <div style="font-family:var(--ff);font-size:15px;font-weight:600;margin-bottom:12px">Debts 💳</div>
+    ${S.debts.map(d=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--g50)">
+      <div><div style="font-size:14px;font-weight:500">${d.name}</div><div style="font-size:12px;color:var(--g400)">Min: ${d.min?fmt(d.min):'N/A'}</div></div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="neg" style="font-weight:600">${fmt(d.balance)}</span><button class="btn bd" onclick="rmDebt('${d.id}');render()">✕</button></div>
+    </div>`).join('')}
+    <button class="btn bs bsm" style="margin-top:12px" onclick="openDebtModal()">+ Add debt</button>
+  </div>
+  <button class="btn bp" style="width:100%;padding:15px;font-size:15px;margin-top:16px" onclick="finishManual()">Launch dashboard 🚀</button>
+  ${S.modal?rModal():''}
+</div>`}
+function finishManual(){syncDebt();setIncome(S.bMonth,S.bYear,S.globalIncome);S.screen='dashboard';S.tab='home';maybeShowCoach('home');render()}
+
+// ── DASHBOARD ──────────────────────────────────────────────────────────────
+function rDash(){
+  const TABS=[{id:'home',l:'Home',e:'🏠'},{id:'txns',l:'Transactions',e:'💸'},{id:'debt',l:'Debt',e:'❄️'},{id:'savings',l:'Savings',e:'🪣'}]
+  let c=''
+  if(S.tab==='home')c=rHome()
+  else if(S.tab==='txns')c=rTxns()
+  else if(S.tab==='debt')c=rDebt()
+  else c=rSav()
+  return`<div class="app">
+    <div class="desk-outer">
+      <div class="desk-wrap">
+        <div class="header" style="display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:32px;height:32px;background:var(--s100);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">🌿</div>
+            <div style="font-size:15px;font-weight:600;color:var(--g800)">${S.name||'My Household'}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            ${S.members.slice(0,3).map((m,i)=>`<span style="width:28px;height:28px;border-radius:50%;background:${MC[i%5]};color:${MT[i%5]};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">${m.name[0].toUpperCase()}</span>`).join('')}
+            <button class="btn bg" onclick="openSettings()" style="padding:6px 10px;font-size:13px;color:var(--g500)">⚙️</button>
+          </div>
+        </div>
+        <div class="content">${c}</div>
+      </div>
+    </div>
+    <nav class="bnav">
+      <div class="bnav-brand">
+        <div style="width:34px;height:34px;background:var(--s100);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px">🌿</div>
+        <div><div style="font-size:14px;font-weight:700;color:var(--g800)">${S.name||'My Household'}</div><div style="font-size:11px;color:var(--g400)">Budget Together</div></div>
+      </div>
+      ${TABS.map(t=>`<button class="nb ${S.tab===t.id?'act':''}" onclick="setTab('${t.id}')">
+        <div class="nb-icon">${t.e}</div><span>${t.l}</span>
+      </button>`).join('')}
+    </nav>
+    ${S.modal?rModal():''}
+    ${S.alert?rAlert():''}
+    ${S.coachMark?rCoachMark():''}
+  </div>`}
+
+// ── HOME ─────────────────────────────────────────────────────────────────
+// Category emoji map
+const CAT_ICON={'Housing':'🏠','Rent':'🏠','Mortgage':'🏠','Utilities':'⚡','Groceries':'🛒','Food':'🍔','Dining':'🍽️','Transport':'🚗','Transportation':'🚗','Car':'🚗','Health':'❤️','Healthcare':'❤️','Insurance':'🛡️','Subscriptions':'📱','Entertainment':'🎬','Clothing':'👕','Education':'📚','Personal':'🪥','Savings':'🪣','Debt':'💳','Misc':'📦','Other':'📦'}
+function catIcon(name){for(const k of Object.keys(CAT_ICON)){if(name.toLowerCase().includes(k.toLowerCase()))return CAT_ICON[k]}return'📦'}
+
+function rHome(){
+  const m=S.bMonth,y=S.bYear,inc=getIncome(m,y)
+  const cats=[...new Set(S.expenses.map(e=>e.category))].sort()
+  const txs=S.transactions.filter(t=>{const d=new Date(t.date);return d.getMonth()===m&&d.getFullYear()===y})
+  const rows=cats.map(cat=>{
+    const planned=getPlanned(cat,m,y)
+    const actual=txs.filter(t=>t.category===cat).reduce((s,t)=>s+t.amount,0)
+    return{cat,planned,actual,rem:planned-actual,ovr:isOvr(cat,m,y)}
+  })
+  const tp=rows.reduce((s,r)=>s+r.planned,0),ta=rows.reduce((s,r)=>s+r.actual,0)
+  const iap=inc-tp,iaa=inc-ta
+
+  const ibar=S.editingIncome
+    ?`<div class="ibar">
+        <div class="il">${MONTHS[m]} ${y} Income</div>
+        <input class="iinput" type="number" inputmode="decimal" id="iinput" value="${inc||''}" placeholder="Enter income…"
+          onblur="commitIncome()" onkeydown="if(event.key==='Enter'){event.preventDefault();commitIncome()}"/>
+        <div class="ibar-stats" style="margin-top:12px">
+          <div class="istat"><div class="istat-l">After planned</div><div class="istat-v">${inc>0?fmt(iap):'—'}</div></div>
+          <div class="istat"><div class="istat-l">After actual</div><div class="istat-v">${inc>0?fmt(iaa):'—'}</div></div>
+        </div></div>`
+    :`<div class="ibar">
+        <div class="ibar-top">
+          <div><div class="il">${MONTHS[m]} ${y} Income</div><div class="iv">${inc>0?fmt(inc):'Not set'}</div></div>
+          <button class="iedit" onclick="startEditIncome()">✏️ Edit</button>
+        </div>
+        <div class="ibar-stats">
+          <div class="istat"><div class="istat-l">After planned spend</div><div class="istat-v">${inc>0?fmt(iap):'—'}</div></div>
+          <div class="istat"><div class="istat-l">After actual spend</div><div class="istat-v">${inc>0?fmt(iaa):'—'}</div></div>
+        </div></div>`
+
+  return`
+  <!-- Page title row -->
+  <div class="home-grid-full" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <div>
+      <div style="font-size:22px;font-weight:700;color:var(--g800);letter-spacing:-.3px">${MONTHS[m]} Budget</div>
+      <div style="font-size:13px;color:var(--g500);margin-top:2px">${y}</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button class="btn bs" onclick="changeMonth(-1)" style="padding:8px 13px;font-size:15px;line-height:1">‹</button>
+      <button class="btn bs" onclick="changeMonth(1)" style="padding:8px 13px;font-size:15px;line-height:1">›</button>
+      <button class="btn bs bsm" onclick="openSettings()" style="margin-left:4px">⚙️ Edit</button>
+    </div>
+  </div>
+
+  <!-- Income bar -->
+  <div class="home-grid-full" style="margin-bottom:20px">${ibar}</div>
+
+  <!-- Two-col grid -->
+  <div class="home-grid">
+    <!-- LEFT: budget table -->
+    <div>
+      <!-- Column headers — desktop only -->
+      <div class="desk-col-headers" style="display:flex;align-items:center;padding:0 18px 8px;gap:14px">
+        <div style="width:36px;flex-shrink:0"></div>
+        <div style="flex:1;font-size:11px;font-weight:600;color:var(--g400);text-transform:uppercase;letter-spacing:.05em">Category</div>
+        <div style="min-width:120px;text-align:right;font-size:11px;font-weight:600;color:var(--g400);text-transform:uppercase;letter-spacing:.05em">Planned</div>
+        <div style="min-width:80px;text-align:right;font-size:11px;font-weight:600;color:var(--g400);text-transform:uppercase;letter-spacing:.05em">Remaining</div>
+      </div>
+      <div class="card" style="overflow:hidden;margin-bottom:8px">
+        ${rows.length===0
+          ?`<div style="padding:48px 24px;text-align:center">
+              <div style="font-size:36px;margin-bottom:12px">📋</div>
+              <div style="font-size:15px;font-weight:600;color:var(--g700);margin-bottom:6px">No budget categories yet</div>
+              <div style="font-size:13px;color:var(--g500);margin-bottom:20px">Add your spending categories to start tracking.</div>
+              <button class="btn bp bsm" onclick="openSettings()">Go to Settings</button>
+            </div>`
+          :rows.map(r=>{
+            const pct=r.planned>0?(r.actual/r.planned)*100:0
+            const icon=catIcon(r.cat)
+            const statusColor=pct>=100?'var(--r500)':pct>=80?'#d97706':'var(--g500)'
+            return`<div class="brow" style="gap:12px">
+              <div class="brow-ico">${icon}</div>
+              <div class="brow-l">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+                  <div style="font-size:14px;font-weight:600;color:var(--g800)">${r.cat}${r.ovr?`<span style="width:6px;height:6px;border-radius:50%;background:var(--r500);display:inline-block;margin-left:6px;vertical-align:middle"></span>`:''}</div>
+                  <!-- Mobile: planned + remaining inline -->
+                  <div class="mobile-row-right" style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+                    <span style="font-size:13px;font-weight:600;color:var(--g500);font-variant-numeric:tabular-nums">${fmt(r.planned)}</span>
+                    <span style="font-size:13px;font-weight:700;font-variant-numeric:tabular-nums" class="${r.rem>=0?'pos':'neg'}">${fmt(r.rem)}</span>
+                  </div>
+                </div>
+                <div style="margin-top:6px"><div class="prog"><div class="pf ${pct>=100?'pr':pct>=80?'pw':'pg'}" style="width:${Math.min(pct,100)}%"></div></div></div>
+                <div style="font-size:11px;color:${statusColor};margin-top:3px;font-weight:500">${fmt(r.actual)} spent · ${Math.round(pct)}%</div>
+              </div>
+              <!-- Desktop: separate columns -->
+              <div class="desk-row-planned" style="min-width:120px;text-align:right;flex-shrink:0">
+                <input class="ei" type="number" inputmode="decimal" value="${r.planned.toFixed(2)}"
+                  title="Click to edit planned amount"
+                  onblur="setPlanned('${r.cat}',${m},${y},this.value);render()"/>
+              </div>
+              <div class="desk-row-remaining" style="min-width:80px;text-align:right;flex-shrink:0">
+                <span style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums" class="${r.rem>=0?'pos':'neg'}">${fmt(r.rem)}</span>
+              </div>
+            </div>`}).join('')}
+        ${rows.length>0?`<div style="display:flex;align-items:center;padding:12px 18px;background:var(--g50);border-top:1px solid var(--g200);gap:14px">
+          <div style="width:36px;flex-shrink:0"></div>
+          <div style="flex:1;font-size:13px;font-weight:700;color:var(--g700)">Total</div>
+          <div style="min-width:120px;text-align:right;font-size:13px;font-weight:700;color:var(--g700);font-variant-numeric:tabular-nums">${fmt(tp)}</div>
+          <div style="min-width:80px;text-align:right;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums" class="${(tp-ta)>=0?'pos':'neg'}">${fmt(tp-ta)}</div>
+        </div>`:''}
+      </div>
+      <div style="font-size:12px;color:var(--g400);padding:0 4px">✏️ Click any planned amount to edit</div>
+    </div>
+
+    <!-- RIGHT: summary + quick actions -->
+    <div>
+      ${inc>0?`
+      <div style="margin-bottom:16px">
+        <div style="font-size:12px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Summary</div>
+        <div class="card" style="overflow:hidden">
+          <div style="padding:16px 18px;border-bottom:1px solid var(--g100)">
+            <div style="font-size:11px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Left after planned</div>
+            <div style="font-size:26px;font-weight:700;letter-spacing:-.5px;font-variant-numeric:tabular-nums;${iap>=0?'color:#2f855a':'color:var(--r500)'}">${fmt(iap)}</div>
+          </div>
+          <div style="padding:16px 18px;border-bottom:1px solid var(--g100)">
+            <div style="font-size:11px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Left after actual</div>
+            <div style="font-size:26px;font-weight:700;letter-spacing:-.5px;font-variant-numeric:tabular-nums;${iaa>=0?'color:#2f855a':'color:var(--r500)'}">${fmt(iaa)}</div>
+          </div>
+          <div style="padding:16px 18px">
+            <div style="font-size:11px;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Total spent</div>
+            <div style="font-size:22px;font-weight:700;color:var(--g800);font-variant-numeric:tabular-nums">${fmt(ta)}</div>
+          </div>
+        </div>
+      </div>`:''}
+
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Quick actions</div>
+        <div class="card" style="overflow:hidden">
+          ${[['💸','Log a transaction','txns',()=>`setTab('txns')`],['🪣','Savings buckets','savings',()=>`setTab('savings')`],['❄️','Debt tracker','debt',()=>`setTab('debt')`]].map(([ico,label,_,fn])=>
+            `<button class="btn" onclick="${fn()}" style="width:100%;padding:13px 18px;border-radius:0;text-align:left;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--g100);font-size:14px;font-weight:500;color:var(--g700);background:transparent">
+              <div style="width:32px;height:32px;background:var(--g100);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">${ico}</div>
+              <span>${label}</span>
+              <span style="margin-left:auto;color:var(--g400);font-size:16px">›</span>
+            </button>`).join('')}
+          <button class="btn" onclick="openSettings()" style="width:100%;padding:13px 18px;border-radius:0;text-align:left;display:flex;align-items:center;gap:12px;font-size:14px;font-weight:500;color:var(--g700);background:transparent">
+            <div style="width:32px;height:32px;background:var(--g100);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">⚙️</div>
+            <span>Edit categories</span>
+            <span style="margin-left:auto;color:var(--g400);font-size:16px">›</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>`}
+
+// ── TRANSACTIONS ──────────────────────────────────────────────────────────
+function rTxns(){
+  const all=[...S.transactions].sort((a,b)=>b.date.localeCompare(a.date))
+  // Group by date
+  const grouped={}
+  all.forEach(t=>{if(!grouped[t.date])grouped[t.date]=[];grouped[t.date].push(t)})
+  const dates=Object.keys(grouped).sort((a,b)=>b.localeCompare(a))
+  const totalSpent=all.reduce((s,t)=>s+t.amount,0)
+  return`
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <div>
+      <div style="font-size:22px;font-weight:700;color:var(--g800);letter-spacing:-.3px">Transactions</div>
+      ${all.length>0?`<div style="font-size:13px;color:var(--g500);margin-top:2px">${all.length} transactions · ${fmt(totalSpent)} total</div>`:''}
+    </div>
+    <button class="btn bp bsm" onclick="openTxModal()" style="gap:6px">+ Add</button>
+  </div>
+  ${all.length===0
+    ?`<div class="card" style="padding:56px 24px;text-align:center">
+        <div style="font-size:40px;margin-bottom:14px">💸</div>
+        <div style="font-size:16px;font-weight:600;color:var(--g700);margin-bottom:6px">No transactions yet</div>
+        <div style="font-size:13px;color:var(--g500);margin-bottom:20px">Log your first transaction to start tracking spending.</div>
+        <button class="btn bp bsm" onclick="openTxModal()">+ Log transaction</button>
+      </div>`
+    :dates.map(date=>{
+      const dayTxs=grouped[date]
+      const dayTotal=dayTxs.reduce((s,t)=>s+t.amount,0)
+      const d=new Date(date+'T12:00:00')
+      const dateLabel=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})
+      return`
+      <div style="margin-bottom:6px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:0 4px;margin-bottom:6px">
+          <div style="font-size:12px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.05em">${dateLabel}</div>
+          <div style="font-size:12px;font-weight:600;color:var(--g500)">${fmt(dayTotal)}</div>
+        </div>
+        <div class="card" style="overflow:hidden;margin-bottom:4px">
+          ${dayTxs.map(t=>`<div class="txr">
+            <div class="tx-ico" style="background:var(--g100)">${getEmoji(t.category)}</div>
+            <div class="tx-b">
+              <div class="tx-m">${t.merchant}</div>
+              <div class="tx-meta" style="display:flex;align-items:center;gap:6px;margin-top:3px">
+                <span class="badge bcat" style="padding:2px 8px;font-size:10px;font-weight:600">${t.category}</span>
+                ${t.description?`<span style="color:var(--g400)">· ${t.description}</span>`:''}
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+              <span style="font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--g800)">−${fmt(t.amount)}</span>
+              <button class="btn bd" onclick="rmTx('${t.id}')" style="padding:4px;min-width:28px;min-height:28px">✕</button>
+            </div>
+          </div>`).join('')}
+        </div>
+      </div>`}).join('')
+  }`}
+
+// ── DEBT ──────────────────────────────────────────────────────────────────
+function rDebt(){
+  const debts=[...S.debts].sort((a,b)=>a.balance-b.balance)
+  const td=debts.reduce((s,d)=>s+d.balance,0),tm=debts.reduce((s,d)=>s+(d.min||0),0)
+  return`
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <div>
+      <div style="font-size:22px;font-weight:700;color:var(--g800);letter-spacing:-.3px">Debt Snowball</div>
+      <div style="font-size:13px;color:var(--g500);margin-top:2px">Smallest balance first</div>
+    </div>
+    <button class="btn bp bsm" onclick="openDebtModal()">+ Add</button>
+  </div>
+  <div class="g3" style="margin-bottom:20px">
+    <div class="card met"><div class="ml">Total debt</div><div class="mv neg">${fmt(td)}</div></div>
+    <div class="card met"><div class="ml">Min/mo</div><div class="mv">${fmt(tm)}</div></div>
+    <div class="card met"><div class="ml">Accounts</div><div class="mv">${debts.length}</div></div>
+  </div>
+  <div class="tip" style="margin-bottom:20px">
+    <strong>How it works:</strong> Pay minimums on all debts. Put every extra dollar toward <strong>#1 (smallest balance)</strong>. When paid off, roll that payment into #2. Repeat until free. ❄️→🔥
+  </div>
+  ${debts.length===0
+    ?`<div class="card" style="padding:48px 24px;text-align:center">
+        <div style="font-size:40px;margin-bottom:14px">🎉</div>
+        <div style="font-size:16px;font-weight:600;color:var(--g700)">No debt logged</div>
+        <div style="font-size:13px;color:var(--g500);margin-top:6px">Add accounts to track your payoff journey.</div>
+      </div>`
+    :`<div style="display:flex;flex-direction:column;gap:10px">
+    ${debts.map((d,i)=>`<div class="dc ${i===0?'focus':''}">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div class="sbrank ${i===0?'f':''}">${i+1}</div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:4px">
+            <span style="font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--g800)">${d.name}</span>
+            <span style="font-size:17px;font-weight:700;color:var(--r500);flex-shrink:0;font-variant-numeric:tabular-nums">${fmt(d.balance)}</span>
+          </div>
+          <div style="font-size:12px;color:var(--g500)">Min: ${d.min?fmt(d.min):'N/A'}${d.rate?` · ${d.rate}% APR`:''}</div>
+          ${i===0?`<div style="display:inline-flex;align-items:center;gap:5px;background:#fef3c7;color:#92400e;border-radius:6px;padding:3px 10px;font-size:12px;font-weight:600;margin-top:8px">🎯 Focus here first</div>`:''}
+          ${i===0&&debts.length>1?`<div style="font-size:12px;color:var(--g400);margin-top:5px">⏭ After payoff → roll payment into <strong>${debts[1].name}</strong></div>`:''}
+        </div>
+        <button class="btn bd" onclick="rmDebt('${d.id}')">✕</button>
+      </div>
+    </div>`).join('')}
+  </div>`}`}
+
+// ── SAVINGS ───────────────────────────────────────────────────────────────
+function rSav(){
+  const goals=S.goals,log=S.savingsLog
+  const totalAlloc=goals.reduce((s,g)=>s+g.currentAmount,0)
+  const unalloc=S.acctBalance-totalAlloc
+  const unassigned=log.filter(l=>!l.goalId&&!l.splits)
+  return`
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <div>
+      <div style="font-size:22px;font-weight:700;color:var(--g800);letter-spacing:-.3px">Savings</div>
+      <div style="font-size:13px;color:var(--g500);margin-top:2px">${fmt(S.acctBalance)} total · ${goals.length} bucket${goals.length!==1?'s':''}</div>
+    </div>
+    <button class="btn bp bsm" onclick="openGoalModal()">+ Bucket</button>
+  </div>
+  <div class="card" style="padding:16px;margin-bottom:14px">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
+      <div><div style="font-size:13px;color:var(--g500)">${S.acctName||'Savings Account'}</div>
+      <div style="font-family:var(--ff);font-size:26px;font-weight:600;color:var(--s600);margin-top:2px">${fmt(S.acctBalance)}</div></div>
+      <button class="btn bs bsm" onclick="openAcctModal()">Edit</button>
+    </div>
+    <div class="stack-bar" style="margin-bottom:10px">
+      ${goals.map((g,i)=>{const w=S.acctBalance>0?(g.currentAmount/S.acctBalance)*100:0;return w>0?`<div style="width:${w}%;background:${BC[i%BC.length]};height:100%"></div>`:''}).join('')}
+      ${unalloc>0&&S.acctBalance>0?`<div style="flex:1;background:var(--g200)"></div>`:''}
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:${unalloc>0?'10':'0'}px">
+      ${goals.map((g,i)=>`<div style="display:flex;align-items:center;gap:4px;font-size:12px">
+        <span style="width:8px;height:8px;border-radius:50%;background:${BC[i%BC.length]}"></span>
+        <span style="color:var(--g600)">${g.name}</span><span style="font-weight:600">${fmt(g.currentAmount)}</span>
+      </div>`).join('')}
+      ${unalloc>0?`<div style="display:flex;align-items:center;gap:4px;font-size:12px">
+        <span style="width:8px;height:8px;border-radius:50%;background:var(--g300)"></span>
+        <span style="color:var(--g400)">Unallocated ${fmt(unalloc)}</span>
+      </div>`:''}
+    </div>
+    ${unalloc>0?`<div style="padding:10px 12px;background:var(--s50);border:1px solid var(--s200);border-radius:var(--rad);margin-top:4px">
+      <div style="font-size:13px;color:var(--s600);font-weight:600;margin-bottom:8px">💰 ${fmt(unalloc)} unallocated</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn bp bxsm" style="flex:1" onclick="openAllocSplitModal()">Split across buckets</button>
+        <button class="btn bs bxsm" style="flex:1" onclick="openGoalModal()">+ New bucket</button>
+      </div>
+    </div>`:''}
+  </div>
+  ${unassigned.length>0?`<div class="warn-banner"><span>⚠️</span><span>${unassigned.length} log ${unassigned.length===1?'entry':'entries'} not assigned. Tap to assign or split.</span></div>`:''}
+  <div class="card" style="overflow:hidden;margin-bottom:14px">
+    <div style="padding:13px 16px;border-bottom:1px solid var(--g100);display:flex;justify-content:space-between;align-items:center">
+      <span style="font-family:var(--ff);font-size:14px;font-weight:600">Buckets</span>
+      <span style="font-size:12px;color:var(--g400)">${fmt(totalAlloc)} allocated</span>
+    </div>
+    ${goals.length===0?`<div style="padding:24px;text-align:center;color:var(--g400);font-size:13px">No buckets yet.</div>`:''}
+    ${goals.map((g,i)=>{
+      const pct=g.targetAmount>0?(g.currentAmount/g.targetAmount)*100:0,col=BC[i%BC.length]
+      return`<div class="bucket">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+          <div style="display:flex;align-items:center;gap:8px;min-width:0">
+            <span style="width:10px;height:10px;border-radius:50%;background:${col};flex-shrink:0;margin-top:3px"></span>
+            <div><div style="font-size:15px;font-weight:600">${g.name}</div>
+            ${g.note?`<div style="font-size:12px;color:var(--g400)">${g.note}</div>`:''}
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;flex-shrink:0">
+            <div style="text-align:right"><div style="font-size:13px;font-weight:600">${fmt(g.currentAmount)}</div>
+            <div style="font-size:11px;color:var(--g400)">/ ${fmt(g.targetAmount)}</div></div>
+            <button class="btn bg bxsm" onclick="openGoalModal('${g.id}')">✏️</button>
+            <button class="btn bd" onclick="rmGoal('${g.id}')">✕</button>
+          </div>
+        </div>
+        <div class="bbar"><div class="bfill" style="width:${Math.min(pct,100)}%;background:${col}"></div></div>
+        <div style="font-size:12px;color:var(--g500)">${Math.round(pct)}% · ${fmt(Math.max(0,g.targetAmount-g.currentAmount))} to go</div>
+      </div>`}).join('')}
+  </div>
+  <div class="card" style="overflow:hidden">
+    <div style="padding:13px 16px;border-bottom:1px solid var(--g100);display:flex;justify-content:space-between;align-items:center">
+      <span style="font-family:var(--ff);font-size:14px;font-weight:600">Activity log</span>
+      <button class="btn bp bsm" onclick="openLogModal()">+ Add</button>
+    </div>
+    ${log.length===0?`<div style="padding:26px;text-align:center;color:var(--g400)"><div style="font-size:22px;margin-bottom:6px">📒</div><div style="font-size:13px">No entries yet.</div></div>`:''}
+    ${[...log].reverse().map(l=>{
+      const g=S.goals.find(x=>x.id===l.goalId)
+      const isUnassigned=!l.goalId&&!l.splits
+      const hasSplits=l.splits&&l.splits.length>0
+      return`<div style="display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--g50);gap:10px;${isUnassigned?'cursor:pointer':''}" onclick="${isUnassigned?`openSplitModal('${l.id}')`:''}" >
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:500">${l.date}</div>
+          ${g?`<div style="font-size:12px;color:var(--g400);margin-top:1px">→ ${g.name}</div>`:''}
+          ${hasSplits?`<div style="font-size:12px;color:var(--g400);margin-top:1px">${l.splits.map(sp=>{const sg=S.goals.find(x=>x.id===sp.goalId);return sg?`${sg.name} ${fmt(sp.amount)}`:''}).filter(Boolean).join(' · ')}</div>`:''}
+          ${isUnassigned?`<span class="unassigned">⚠️ Tap to assign or split</span>`:''}
+          ${l.notes?`<div style="font-size:12px;color:var(--g400)">${l.notes}</div>`:''}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+          <span class="${l.amount<0?'neg':'pos'}" style="font-weight:700;font-size:15px">${l.amount>=0?'+':''}${fmt(l.amount)}</span>
+          <button class="btn bd bxsm" onclick="event.stopPropagation();rmLog('${l.id}')">✕</button>
+        </div>
+      </div>`}).join('')}
+  </div>`}
+
+// ── SETTINGS ──────────────────────────────────────────────────────────────
+function rSettings(){
+  const total=S.expenses.reduce((s,e)=>s+mAmt(e),0)
+  return`<div class="app">
+    <div class="desk-outer">
+      <div class="desk-wrap">
+        <div class="header">
+          <div style="display:flex;align-items:center;gap:10px">
+            <button class="btn bg" onclick="S.showSettings=false;render()" style="padding:8px 12px;font-size:16px">←</button>
+            <div style="font-size:18px;font-weight:700">Settings</div>
+          </div>
+        </div>
+        <div class="content">
+          <div class="settings-grid">
+            <div>
+              <div class="card" style="overflow:hidden;margin-bottom:20px">
+                <div style="padding:14px 20px;border-bottom:1px solid var(--g100)"><div style="font-size:15px;font-weight:700">🏡 Household</div></div>
+                <div style="padding:16px 20px">
+                  <div style="margin-bottom:12px"><span class="lbl">Household name</span>
+                  <input value="${S.name}" placeholder="e.g. The Johnson Family" onblur="S.name=this.value"/></div>
+                  <span class="lbl">Members</span>
+                  ${S.members.map((m,i)=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--g50)">
+                    <div style="display:flex;align-items:center;gap:8px">
+                      <span style="width:28px;height:28px;border-radius:50%;background:${MC[i%5]};color:${MT[i%5]};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">${m.name[0].toUpperCase()}</span>
+                      <span style="font-size:14px">${m.name}</span>
+                    </div>
+                    <button class="btn bd" onclick="rmMember('${m.id}')">✕</button>
+                  </div>`).join('')}
+                  <div style="display:flex;gap:8px;margin-top:10px">
+                    <input id="nm" placeholder="Add member name" onkeydown="if(event.key==='Enter')addMember()"/>
+                    <button class="btn bs bsm" onclick="addMember()" style="white-space:nowrap">+ Add</button>
+                  </div>
+                </div>
+              </div>
+              <div class="card" style="overflow:hidden;margin-bottom:20px">
+                <div style="padding:14px 20px;border-bottom:1px solid var(--g100)"><div style="font-size:15px;font-weight:700">🔧 Account</div></div>
+                <div style="padding:16px 20px;display:flex;flex-direction:column;gap:10px">
+                  <button class="btn bs" style="width:100%;padding:12px" onclick="go('landing')">← Back to start</button>
+                  <button class="btn" onclick="confirmReset()" style="width:100%;padding:12px;background:var(--r50);color:var(--r600);border:1px solid var(--r300);border-radius:var(--rad);font-size:13px;font-weight:600">🗑 Reset all data</button>
+                  <div style="font-size:11px;color:var(--g400);text-align:center">💾 Data saved automatically in your browser</div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="card" style="overflow:hidden;margin-bottom:20px">
+                <div style="padding:14px 20px;border-bottom:1px solid var(--g100);display:flex;justify-content:space-between;align-items:center">
+                  <div><div style="font-size:15px;font-weight:700">📋 Budget Categories &amp; Expenses</div>
+                  <div style="font-size:12px;color:var(--g400);margin-top:2px">Pre-fills your monthly budget planned amounts</div></div>
+                  <span style="font-size:13px;font-weight:600;color:var(--s600)">${fmt(total)}/mo</span>
+                </div>
+                ${TIERS.map(t=>{
+                  const items=S.expenses.filter(e=>e.tier===t.key)
+                  if(items.length===0)return''
+                  const open=!!S.openTiers['s_'+t.key]
+                  return`<div class="tg" style="margin:8px;border-radius:var(--rad)">
+                    <div class="tgh" onclick="togTier('s_${t.key}')">
+                      <div style="display:flex;align-items:center;gap:7px"><span class="badge ${t.badge}">Tier ${t.key} — ${t.short}</span><span style="font-size:11px;color:var(--g400)">${items.length}</span></div>
+                      <div style="display:flex;align-items:center;gap:7px"><span style="font-size:12px;font-weight:600">${fmt(items.reduce((s,e)=>s+mAmt(e),0))}/mo</span><span class="chev ${open?'op':''}">▾</span></div>
+                    </div>
+                    ${open?`<div class="tb2">${items.map(e=>`<div class="er">
+                      <div class="er-b"><div class="er-n" style="font-size:13px">${e.item}${e._da?` <span style="font-size:10px;color:var(--s600)">AUTO</span>`:''}</div><div class="er-c">${e.category}</div></div>
+                      <div class="er-r"><span style="font-size:13px;font-weight:600">${fmt(e.amount)}</span>
+                      ${!e._da?`<div style="display:flex;gap:3px"><button class="btn bg bxsm" onclick="openEditExpModal('${e.id}')">✏️</button><button class="btn bd" onclick="rmExp('${e.id}')">✕</button></div>`:`<span style="font-size:10px;color:var(--g400)">from debt</span>`}
+                      </div></div>`).join('')}
+                      <div style="padding:8px 12px"><button class="btn bs bsm" style="width:100%" onclick="openAddExpModal('${t.key}')">+ Add</button></div>
+                    </div>`:''}</div>`}).join('')}
+                <div style="padding:12px 16px"><button class="btn bp bsm" onclick="openAddExpModal()">+ Add expense</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    ${S.modal?rModal():''}
+  </div>`}
+
+// ── MODALS ────────────────────────────────────────────────────────────────
+function rModal(){
+  const m=S.modal; let body=''
+  if(m.type==='exp'){
+    body=`<div class="mt2">${m.id?'Edit':'Add'} expense</div>
+    <div style="margin-bottom:12px"><span class="lbl">Priority tier (5=most critical)</span>
+    <select onchange="S.modal.tier=this.value">${TIERS.map(t=>`<option value="${t.key}" ${m.tier===t.key?'selected':''}>${t.key} — ${t.short}</option>`).join('')}</select></div>
+    <div class="g2" style="margin-bottom:12px">
+      <div><span class="lbl">Category</span><input value="${m.category||''}" placeholder="Housing" onblur="S.modal.category=this.value"/></div>
+      <div><span class="lbl">Item name</span><input value="${m.item||''}" placeholder="Rent" onblur="S.modal.item=this.value"/></div>
+    </div>
+    <div class="g2" style="margin-bottom:12px">
+      <div><span class="lbl">Amount ($)</span><input type="number" inputmode="decimal" value="${m.amount||''}" placeholder="0" onblur="S.modal.amount=parseFloat(this.value)||0"/></div>
+      <div><span class="lbl">Frequency</span><select onchange="S.modal.frequency=this.value">
+        ${FREQ_OPTIONS.map(f=>`<option value="${f.val}" ${(m.frequency||'monthly')===f.val?'selected':''}>${f.label}</option>`).join('')}
+      </select></div>
+    </div>
+    <div style="margin-bottom:18px"><span class="lbl">Note (optional)</span><input value="${m.tip||''}" placeholder="Reminder for yourself" onblur="S.modal.tip=this.value"/></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn bs" style="flex:1" onclick="closeModal()">Cancel</button>
+      <button class="btn bp" style="flex:2;padding:14px" onclick="saveExp()">${m.id?'Save':'Add'}</button>
+    </div>`
+  }else if(m.type==='debt'){
+    body=`<div class="mt2">Add debt</div>
+    <div style="margin-bottom:12px"><span class="lbl">Debt name</span><input value="${m.name||''}" placeholder="e.g. Chase Sapphire Card" onblur="S.modal.name=this.value"/></div>
+    <div class="g2" style="margin-bottom:12px">
+      <div><span class="lbl">Balance ($)</span><input type="number" inputmode="decimal" value="${m.balance||''}" placeholder="0" onblur="S.modal.balance=parseFloat(this.value)||0"/></div>
+      <div><span class="lbl">Min payment/mo</span><input type="number" inputmode="decimal" value="${m.min??''}" placeholder="0" onblur="S.modal.min=this.value===''?null:parseFloat(this.value)||0"/></div>
+    </div>
+    <div style="margin-bottom:16px"><span class="lbl">APR % (optional)</span><input type="number" inputmode="decimal" step="0.1" value="${m.rate||''}" placeholder="19.99" onblur="S.modal.rate=this.value"/></div>
+    <div class="tip" style="margin-bottom:16px">❄️ Sorted smallest→largest. Min payments auto-appear in your monthly budget.</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn bs" style="flex:1" onclick="closeModal()">Cancel</button>
+      <button class="btn bp" style="flex:2;padding:14px" onclick="saveDebt()">Add debt</button>
+    </div>`
+  }else if(m.type==='goal'){
+    body=`<div class="mt2">${m.id?'Edit bucket':'New savings bucket'}</div>
+    <div style="margin-bottom:12px"><span class="lbl">Bucket name</span><input value="${m.name||''}" placeholder="e.g. Emergency Fund" onblur="S.modal.name=this.value"/></div>
+    <div class="g2" style="margin-bottom:12px">
+      <div><span class="lbl">Target ($)</span><input type="number" inputmode="decimal" value="${m.targetAmount||''}" placeholder="3000" onblur="S.modal.targetAmount=parseFloat(this.value)||0"/></div>
+      <div><span class="lbl">Currently saved ($)</span><input type="number" inputmode="decimal" value="${m.currentAmount||''}" placeholder="0" onblur="S.modal.currentAmount=parseFloat(this.value)||0"/></div>
+    </div>
+    <div style="margin-bottom:18px"><span class="lbl">Note (optional)</span><input value="${m.note||''}" placeholder="e.g. 3–6 months of expenses" onblur="S.modal.note=this.value"/></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn bs" style="flex:1" onclick="closeModal()">Cancel</button>
+      <button class="btn bp" style="flex:2;padding:14px" onclick="saveGoal()">${m.id?'Save':'Add bucket'}</button>
+    </div>`
+  }else if(m.type==='log'){
+    body=`<div class="mt2">Log savings activity</div>
+    <div class="g2" style="margin-bottom:12px">
+      <div><span class="lbl">Date</span><input type="date" value="${m.date||new Date().toISOString().split('T')[0]}" onchange="S.modal.date=this.value"/></div>
+      <div><span class="lbl">Amount (use − for withdrawal)</span><input type="number" inputmode="decimal" value="${m.amount||''}" placeholder="200 or -100" onblur="S.modal.amount=parseFloat(this.value)||0"/></div>
+    </div>
+    <div style="margin-bottom:12px"><span class="lbl">Which bucket? (or split later)</span>
+    <select onchange="S.modal.goalId=this.value">
+      <option value="">I'll split it out later</option>
+      ${S.goals.map(g=>`<option value="${g.id}" ${m.goalId===g.id?'selected':''}>${g.name} — ${fmt(g.currentAmount)}</option>`).join('')}
+    </select></div>
+    <div style="margin-bottom:18px"><span class="lbl">Notes (optional)</span><input value="${m.notes||''}" placeholder="e.g. Monthly deposit" onblur="S.modal.notes=this.value"/></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn bs" style="flex:1" onclick="closeModal()">Cancel</button>
+      <button class="btn bp" style="flex:2;padding:14px" onclick="saveLog()">Save</button>
+    </div>`
+  }else if(m.type==='split'){
+    const totalAmt=Math.abs(m.amount)
+    const assigned=m.splits.reduce((s,sp)=>s+(parseFloat(sp.amount)||0),0)
+    const remaining=totalAmt-assigned
+    body=`<div class="mt2">${m.amount>=0?'Split deposit':'Split withdrawal'} of ${fmt(Math.abs(m.amount))}</div>
+    <div style="font-size:13px;color:var(--g500);margin-bottom:14px">Enter how much goes to each bucket. Remaining: <strong class="${remaining<=0?'pos':''}">${fmt(remaining)}</strong></div>
+    ${m.splits.map((sp,i)=>{
+      const g=S.goals.find(x=>x.id===sp.goalId)
+      return`<div class="split-row">
+        <div style="flex:1;font-size:14px;font-weight:500">${g?g.name:'Unknown'}</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="color:var(--g400)">$</span>
+          <input type="number" inputmode="decimal" value="${sp.amount||''}" placeholder="0"
+            style="width:90px;padding:8px 10px;font-size:14px"
+            onblur="S.modal.splits[${i}].amount=parseFloat(this.value)||0"/>
+          <button class="btn bd" onclick="S.modal.splits.splice(${i},1);render()">✕</button>
+        </div>
+      </div>`}).join('')}
+    ${S.goals.filter(g=>!m.splits.find(sp=>sp.goalId===g.id)).length>0?`
+    <div style="margin-top:10px">
+      <span class="lbl">Add bucket to split into:</span>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">
+        ${S.goals.filter(g=>!m.splits.find(sp=>sp.goalId===g.id)).map(g=>`<button class="chip" onclick="S.modal.splits.push({goalId:'${g.id}',amount:0});render()">+ ${g.name}</button>`).join('')}
+      </div>
+    </div>`:''}
+    ${remaining>0?`<div style="margin-top:10px;padding:8px 12px;background:var(--y50);border-radius:var(--rad);font-size:12px;color:var(--y600)">${fmt(remaining)} will remain unassigned.</div>`:''}
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="btn bs" style="flex:1" onclick="closeModal()">Cancel</button>
+      <button class="btn bp" style="flex:2;padding:14px" onclick="saveSplit()">Save split</button>
+    </div>`
+  }else if(m.type==='alloc_split'){
+    const totalUnalloc=S.acctBalance-S.goals.reduce((s,g)=>s+g.currentAmount,0)
+    const assigned=m.splits.reduce((s,sp)=>s+(parseFloat(sp.amount)||0),0)
+    const remaining=totalUnalloc-assigned
+    body=`<div class="mt2">Split ${fmt(totalUnalloc)} unallocated</div>
+    <div style="font-size:13px;color:var(--g500);margin-bottom:14px">Assign how much goes to each bucket. Remaining: <strong class="${remaining<=0?'pos':''}">${fmt(remaining)}</strong></div>
+    ${m.splits.map((sp,i)=>{
+      const g=S.goals.find(x=>x.id===sp.goalId)
+      return`<div class="split-row">
+        <div style="flex:1;font-size:14px;font-weight:500">${g?g.name:'Unknown'}</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="color:var(--g400)">$</span>
+          <input type="number" inputmode="decimal" value="${sp.amount||''}" placeholder="0"
+            style="width:90px;padding:8px 10px;font-size:14px"
+            onblur="S.modal.splits[${i}].amount=parseFloat(this.value)||0"/>
+          <button class="btn bd" onclick="S.modal.splits.splice(${i},1);render()">✕</button>
+        </div>
+      </div>`}).join('')}
+    ${S.goals.filter(g=>!m.splits.find(sp=>sp.goalId===g.id)).length>0?`
+    <div style="margin-top:10px">
+      <span class="lbl">Add a bucket:</span>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">
+        ${S.goals.filter(g=>!m.splits.find(sp=>sp.goalId===g.id)).map(g=>`<button class="chip" onclick="S.modal.splits.push({goalId:'${g.id}',amount:0});render()">+ ${g.name}</button>`).join('')}
+      </div>
+    </div>`:``}
+    ${remaining<0?`<div style="margin-top:10px;padding:8px 12px;background:var(--r50);border-radius:var(--rad);font-size:12px;color:var(--r600)">⚠️ You've over-allocated by ${fmt(Math.abs(remaining))} — reduce some amounts.</div>`:``}
+    ${remaining>0?`<div style="margin-top:10px;padding:8px 12px;background:var(--y50);border-radius:var(--rad);font-size:12px;color:var(--y600)">${fmt(remaining)} will remain unallocated.</div>`:``}
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="btn bs" style="flex:1" onclick="closeModal()">Cancel</button>
+      <button class="btn bp" style="flex:2;padding:14px" onclick="saveAllocSplit()" ${remaining<0?'disabled':''}>Save allocation</button>
+    </div>`
+  }else if(m.type==='acct'){
+    body=`<div class="mt2">Edit savings account</div>
+    <div style="margin-bottom:12px"><span class="lbl">Account name</span><input value="${m.name||''}" placeholder="e.g. Wells Fargo HYSA" onblur="S.modal.name=this.value"/></div>
+    <div style="margin-bottom:18px"><span class="lbl">Current balance ($)</span><input type="number" inputmode="decimal" value="${m.balance||''}" placeholder="0" onblur="S.modal.balance=parseFloat(this.value)||0"/></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn bs" style="flex:1" onclick="closeModal()">Cancel</button>
+      <button class="btn bp" style="flex:2;padding:14px" onclick="saveAcct()">Save</button>
+    </div>`
+  }else if(m.type==='tx'){
+    const cats=[...new Set(S.expenses.map(e=>e.category))].sort()
+    body=`<div class="mt2">Add transaction</div>
+    <div class="g2" style="margin-bottom:12px">
+      <div><span class="lbl">Date</span><input type="date" value="${m.date||new Date().toISOString().split('T')[0]}" onchange="S.modal.date=this.value"/></div>
+      <div><span class="lbl">Merchant</span><input value="${m.merchant||''}" placeholder="e.g. Safeway" onblur="S.modal.merchant=this.value"/></div>
+    </div>
+    <div style="margin-bottom:12px"><span class="lbl">Category</span>
+    <select onchange="S.modal.category=this.value"><option value="">Select…</option>
+      ${cats.map(c=>`<option value="${c}" ${m.category===c?'selected':''}>${c}</option>`).join('')}
+    </select></div>
+    <div class="g2" style="margin-bottom:18px">
+      <div><span class="lbl">Description</span><input value="${m.description||''}" placeholder="Weekly shop" onblur="S.modal.description=this.value"/></div>
+      <div><span class="lbl">Amount ($)</span><input type="number" inputmode="decimal" value="${m.amount||''}" placeholder="0.00" onblur="S.modal.amount=parseFloat(this.value)||0"/></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn bs" style="flex:1" onclick="closeModal()">Cancel</button>
+      <button class="btn bp" style="flex:2;padding:14px" onclick="saveTx()">Save</button>
+    </div>`
+  }else if(m.type==='sub_amount'){
+    const sqFreq=m.freq||'monthly'
+    const sqAmt=parseFloat(m.amount)||0
+    const sqEq=freqToMonthly(sqAmt,sqFreq)
+    body=`<div class="mt2">How much is ${m.name}?</div>
+    <div style="margin-bottom:12px"><span class="lbl">Amount ($)</span>
+    <input class="gw-amt" type="number" inputmode="decimal" id="sub-quick-amt" value="${m.amount||''}" placeholder="0"
+      onblur="S.modal.amount=this.value;renderQuickSubEq()" onkeydown="if(event.key==='Enter'){event.preventDefault();saveQuickSub()}"/></div>
+    <div style="margin-bottom:18px">
+      <span class="lbl">Billing frequency</span>
+      <select id="sub-quick-freq" onchange="S.modal.freq=this.value;renderQuickSubEq()">
+        <option value="monthly" ${sqFreq==='monthly'?'selected':''}>Monthly</option>
+        <option value="annual" ${sqFreq==='annual'?'selected':''}>Annually (÷12)</option>
+        <option value="quarterly" ${sqFreq==='quarterly'?'selected':''}>Quarterly (÷3)</option>
+      </select>
+      <div id="sub-quick-eq">${sqAmt>0&&sqFreq!=='monthly'?`<div class="freq-eq">= ${fmt(sqEq)}/month equivalent</div>`:''}</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn bs" style="flex:1" onclick="closeModal()">Cancel</button>
+      <button class="btn bp" style="flex:2;padding:14px" onclick="saveQuickSub()">Add ${m.name}</button>
+    </div>`
+  }
+  return`<div class="modal-bg" onclick="if(event.target===this)closeModal()">
+    <div class="modal"><div class="modal-handle"></div>${body}</div>
+  </div>`}
+
+function rAlert(){const a=S.alert;return`
+<div class="alert-bg"><div class="alert-box">
+  <div style="font-size:36px;margin-bottom:12px">${a.icon||'⚠️'}</div>
+  <div style="font-size:18px;font-weight:700;color:var(--g800);margin-bottom:8px">${a.title}</div>
+  <div style="font-size:14px;color:var(--g500);margin-bottom:22px;line-height:1.6">${a.message}</div>
+  ${a.confirmLabel
+    ?`<div style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn" style="width:100%;padding:14px;font-size:14px;font-weight:600;border-radius:var(--rad);${a.confirmStyle||''}" onclick="${a.onConfirm};S.alert=null;render()">${a.confirmLabel}</button>
+        <button class="btn bs" style="width:100%;padding:13px;font-size:14px" onclick="S.alert=null;render()">Cancel</button>
+      </div>`
+    :`<button class="btn bp" style="width:100%;padding:14px;font-size:15px" onclick="S.alert=null;render()">Got it</button>`
+  }
+</div></div>`}
+
+
+// ── COACH MARKS ────────────────────────────────────────────────────────────
+const _seenMarks=JSON.parse(localStorage.getItem('bt_seen_marks')||'{}')
+
+const COACH={
+  home:{emoji:'💡',title:'Set your income first',body:'Tap the income card at the top to enter your monthly take-home pay. Everything — remaining budget, savings headroom — flows from it.',cta:'Got it'},
+  txns:{emoji:'💸',title:'Log every purchase here',body:'Hit "+ Add" after spending. It automatically deducts from the right budget category so you always know exactly what\'s left.',cta:'Got it'},
+  debt:{emoji:'❄️',title:'The Debt Snowball method',body:'Add your debts and we\'ll sort them smallest-to-largest. Pay minimums on all, throw every extra dollar at #1 — then roll that payment into #2 when it\'s gone.',cta:'Got it'},
+  savings:{emoji:'🪣',title:'Give every dollar a job',body:'Create buckets for each goal — emergency fund, vacation, new car — and allocate your balance so nothing just sits in savings with no purpose.',cta:'Got it'},
+  settings:{emoji:'⚙️',title:'Your budget lives here',body:'Set up spending categories and recurring expenses here. Changes automatically update your monthly planned amounts on the Home tab.',cta:'Got it'},
+}
+const COACH_ORDER=['home','txns','debt','savings','settings']
+
+function maybeShowCoach(id){if(!_seenMarks[id]){S.coachMark=id}}
+
+function dismissCoach(skipAll){
+  if(!S.coachMark)return
+  _seenMarks[S.coachMark]=true
+  if(skipAll)COACH_ORDER.forEach(k=>{_seenMarks[k]=true})
+  localStorage.setItem('bt_seen_marks',JSON.stringify(_seenMarks))
+  S.coachMark=null
+  render()
+}
+
+function rCoachMark(){
+  const id=S.coachMark
+  if(!id||!COACH[id])return''
+  const c=COACH[id]
+  const step=COACH_ORDER.indexOf(id)
+  return`<div onclick="dismissCoach(false)" style="position:fixed;inset:0;z-index:150;background:rgba(15,20,30,.55);backdrop-filter:blur(2px);display:flex;align-items:flex-end;justify-content:center;padding:16px">
+    <div onclick="event.stopPropagation()" style="background:#fff;border-radius:20px;padding:26px 22px 22px;width:100%;max-width:420px;margin-bottom:calc(72px + var(--sb));box-shadow:0 24px 60px rgba(0,0,0,.3);position:relative">
+      <div style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);width:32px;height:32px;background:var(--s500);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 0 6px rgba(61,122,61,.18)">${c.emoji}</div>
+      <div style="text-align:center;margin-top:6px">
+        <div style="font-size:17px;font-weight:700;color:var(--g800);margin-bottom:8px">${c.title}</div>
+        <div style="font-size:14px;color:var(--g500);line-height:1.65;margin-bottom:22px">${c.body}</div>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:14px">
+        <button class="btn bs" style="flex:1;padding:12px;font-size:13px" onclick="dismissCoach(true)">Skip all tips</button>
+        <button class="btn bp" style="flex:2;padding:12px;font-size:15px;font-weight:600" onclick="dismissCoach(false)">${c.cta} →</button>
+      </div>
+      <div style="display:flex;justify-content:center;gap:5px">
+        ${COACH_ORDER.map((k,i)=>`<div style="height:5px;width:${k===id?'20':'5'}px;border-radius:3px;background:${k===id?'var(--s500)':_seenMarks[k]?'var(--s200)':'var(--g200)'};transition:all .3s"></div>`).join('')}
+      </div>
+    </div>
+  </div>`
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────────────────
+function go(s){S.screen=s;S.showSettings=false;render()}
+function startGuided(){S.screen='guided';S.gwIdx=0;S.gwSubIdx=-1;S.gwAns={};S.gwSubs=[];S.gwSubsSelectedCats={};S.gwDebtsTemp=[];S.expenses=[];S.debts=[];render()}
+function startManual(){S.screen='manual';S.expenses=[];S.debts=[];render()}
+function setTab(t){S.tab=t;window.scrollTo(0,0);maybeShowCoach(t);render()}
+function openSettings(){S.showSettings=true;maybeShowCoach('settings');render()}
+function changeMonth(d){let m=S.bMonth+d,y=S.bYear;if(m>11){m=0;y++}if(m<0){m=11;y--}S.bMonth=m;S.bYear=y;S.editingIncome=false;render()}
+function togTier(k){S.openTiers[k]=!S.openTiers[k];render()}
+function closeModal(){S.modal=null;render()}
+function startEditIncome(){S.editingIncome=true;render();setTimeout(()=>{const el=document.getElementById('iinput');if(el){el.focus();el.select()}},80)}
+function commitIncome(){const el=document.getElementById('iinput');if(el)setIncome(S.bMonth,S.bYear,el.value);S.editingIncome=false;render()}
+function addMember(){const el=document.getElementById('nm');if(!el)return;const n=el.value.trim();if(!n)return;S.members.push({id:uid(),name:n});render()}
+function rmMember(id){S.members=S.members.filter(m=>m.id!==id);render()}
+function rmExp(id){S.expenses=S.expenses.filter(e=>e.id!==id);render()}
+function openAddExpModal(tier){S.modal={type:'exp',tier:tier||'5',category:'',item:'',amount:0,frequency:'monthly',tip:''};render()}
+function openEditExpModal(id){const e=S.expenses.find(x=>x.id===id);if(!e)return;S.modal={type:'exp',id,...e};render()}
+function saveExp(){
+  const m=S.modal;if(!m.category||!m.item)return
+  const monthly=freqToMonthly(m.amount,m.frequency||'monthly')
+  if(m.id)S.expenses=S.expenses.map(e=>e.id===m.id?{...e,...m,amount:monthly,frequency:'monthly'}:e)
+  else S.expenses=[...S.expenses,{id:uid(),tier:m.tier,category:m.category,item:m.item,amount:monthly,frequency:'monthly',tip:m.tip||''}]
+  closeModal()
+}
+function openDebtModal(){S.modal={type:'debt',name:'',balance:0,min:null,rate:''};render()}
+function rmDebt(id){S.debts=S.debts.filter(d=>d.id!==id);syncDebt();render()}
+function saveDebt(){const m=S.modal;if(!m.name)return;S.debts=[...S.debts,{id:uid(),name:m.name,balance:m.balance,min:m.min,rate:m.rate}];syncDebt();closeModal()}
+function openGoalModal(id){
+  if(id){const g=S.goals.find(x=>x.id===id);if(!g)return;S.modal={type:'goal',id:g.id,...g}}
+  else S.modal={type:'goal',name:'',targetAmount:0,currentAmount:0,note:''}
+  render()
+}
+function rmGoal(id){S.goals=S.goals.filter(g=>g.id!==id);render()}
+function saveGoal(){const m=S.modal;if(!m.name)return;if(m.id)S.goals=S.goals.map(g=>g.id===m.id?{...g,...m}:g);else S.goals=[...S.goals,{id:uid(),name:m.name,targetAmount:m.targetAmount,currentAmount:m.currentAmount,note:m.note}];closeModal()}
+function openTxModal(){S.modal={type:'tx',date:new Date().toISOString().split('T')[0],merchant:'',category:'',description:'',amount:0};render()}
+function rmTx(id){S.transactions=S.transactions.filter(t=>t.id!==id);render()}
+function saveTx(){
+  const m=S.modal
+  if(!m.merchant||!m.merchant.trim()){
+    S.alert={icon:'🛒',title:'Merchant is required',message:'Please enter the merchant name (e.g. Safeway, Amazon) before saving.'}
+    render();return
+  }
+  if(!m.category){
+    S.alert={icon:'🏷️',title:'Category is required',message:'Please select a category for this transaction before saving.'}
+    render();return
+  }
+  if(!m.amount||m.amount<=0){
+    S.alert={icon:'💲',title:'Amount is required',message:'Please enter a valid amount greater than $0 before saving.'}
+    render();return
+  }
+  S.transactions=[{id:uid(),date:m.date,merchant:m.merchant,category:m.category,description:m.description,amount:m.amount},...S.transactions]
+  closeModal()
+}
+function openLogModal(){S.modal={type:'log',date:new Date().toISOString().split('T')[0],amount:0,goalId:'',notes:''};render()}
+function rmLog(id){S.savingsLog=S.savingsLog.filter(l=>l.id!==id);render()}
+function saveLog(){
+  const m=S.modal;if(!m.date)return
+  const amt=parseFloat(m.amount)||0
+  if(amt<0&&m.goalId){
+    const g=S.goals.find(x=>x.id===m.goalId)
+    if(g&&(g.currentAmount+amt)<0){
+      S.alert={icon:'🚫',title:"Can't go negative!",message:`Withdrawing ${fmt(Math.abs(amt))} from "${g.name}" would leave ${fmt(g.currentAmount+amt)}. Max withdrawal: ${fmt(g.currentAmount)}.`}
+      S.modal=null;render();return
+    }
+  }
+  if(m.goalId)S.goals=S.goals.map(g=>g.id===m.goalId?{...g,currentAmount:Math.max(0,g.currentAmount+amt)}:g)
+  S.acctBalance=Math.max(0,S.acctBalance+amt)
+  S.savingsLog=[...S.savingsLog,{id:uid(),date:m.date,amount:amt,goalId:m.goalId||null,notes:m.notes,splits:null}]
+  closeModal()
+}
+function openSplitModal(logId){
+  const l=S.savingsLog.find(x=>x.id===logId);if(!l)return
+  S.modal={type:'split',logId:l.id,date:l.date,amount:l.amount,splits:[]}
+  render()
+}
+function saveSplit(){
+  const m=S.modal
+  for(const sp of m.splits){
+    if(!sp.goalId||!sp.amount)continue
+    const amt=m.amount<0?-Math.abs(sp.amount):Math.abs(sp.amount)
+    if(amt<0){
+      const g=S.goals.find(x=>x.id===sp.goalId)
+      if(g&&(g.currentAmount+amt)<0){S.alert={icon:'🚫',title:"Can't go negative!",message:`${fmt(Math.abs(amt))} from "${g.name}" would leave ${fmt(g.currentAmount+amt)}.`};S.modal=null;render();return}
+    }
+  }
+  const sign=m.amount<0?-1:1
+  m.splits.forEach(sp=>{
+    if(!sp.goalId||!sp.amount)return
+    const amt=sign*Math.abs(sp.amount)
+    S.goals=S.goals.map(g=>g.id===sp.goalId?{...g,currentAmount:Math.max(0,g.currentAmount+amt)}:g)
+  })
+  S.savingsLog=S.savingsLog.map(l=>l.id===m.logId?{...l,goalId:null,splits:m.splits.filter(sp=>sp.goalId&&sp.amount)}:l)
+  closeModal()
+}
+function openAllocSplitModal(){
+  S.modal={type:'alloc_split',splits:S.goals.map(g=>({goalId:g.id,amount:0}))}
+  render()
+}
+function saveAllocSplit(){
+  const m=S.modal
+  const totalUnalloc=S.acctBalance-S.goals.reduce((s,g)=>s+g.currentAmount,0)
+  const assigned=m.splits.reduce((s,sp)=>s+(parseFloat(sp.amount)||0),0)
+  if(assigned>totalUnalloc){
+    S.alert={icon:'🚫',title:'Over-allocated',message:`You tried to allocate ${fmt(assigned)} but only ${fmt(totalUnalloc)} is unallocated.`}
+    S.modal=null;render();return
+  }
+  m.splits.forEach(sp=>{
+    const amt=parseFloat(sp.amount)||0
+    if(amt>0)S.goals=S.goals.map(g=>g.id===sp.goalId?{...g,currentAmount:g.currentAmount+amt}:g)
+  })
+  closeModal()
+}
+function confirmReset(){
+  S.alert={
+    icon:'🗑',
+    title:'Reset all data?',
+    message:'This will permanently delete all your budget data, transactions, debts, and savings. This cannot be undone.',
+    confirmLabel:'Yes, reset everything',
+    confirmStyle:'background:var(--r500);color:#fff',
+    onConfirm:'doReset()'
+  }
+  render()
+}
+function doReset(){
+  localStorage.removeItem(STORAGE_KEY)
+  localStorage.removeItem('bt_seen_marks')
+  location.reload()
+}
+function openAcctModal(){S.modal={type:'acct',name:S.acctName,balance:S.acctBalance};render()}
+function saveAcct(){const m=S.modal;S.acctName=m.name;S.acctBalance=m.balance;closeModal()}
+function renderQuickSubEq(){
+  const amtEl=document.getElementById('sub-quick-amt')
+  const freqEl=document.getElementById('sub-quick-freq')
+  const eqEl=document.getElementById('sub-quick-eq')
+  if(!amtEl||!freqEl||!eqEl)return
+  S.modal.amount=amtEl.value
+  S.modal.freq=freqEl.value
+  const amt=parseFloat(amtEl.value)||0
+  const freq=freqEl.value
+  const eq=freqToMonthly(amt,freq)
+  eqEl.innerHTML=amt>0&&freq!=='monthly'?`<div class="freq-eq">= ${fmt(eq)}/month equivalent</div>`:''
+}
+function saveQuickSub(){
+  const m=S.modal
+  const amt=parseFloat(m.amount)||0
+  const freq=m.freq||'monthly'
+  const monthly=freqToMonthly(amt,freq)
+  if(monthly>0)S.gwSubs.push({id:uid(),catId:m.catId,name:m.name,amount:monthly})
+  closeModal()
+}
+function attachL(){
+  document.onkeydown=e=>{if(e.key==='Escape'&&S.modal)closeModal()}
+  // Prevent pinch-zoom on iOS (feels like a browser, not an app)
+  document.addEventListener('touchmove',function(e){if(e.touches.length>1)e.preventDefault()},{passive:false})
+  // Prevent double-tap zoom
+  let lastTap=0
+  document.addEventListener('touchend',function(e){
+    const now=Date.now()
+    if(now-lastTap<300&&e.target.tagName!=='INPUT'&&e.target.tagName!=='TEXTAREA'&&e.target.tagName!=='SELECT'){
+      e.preventDefault()
+    }
+    lastTap=now
+  },{passive:false})
+}
+
+render()
+</script>
+</body>
+</html>
