@@ -536,8 +536,8 @@ function rLand(){return`
   <div style="font-size:32px;font-weight:700;margin-bottom:10px;color:var(--g800)">Budget Together</div>
   <p style="font-size:15px;color:var(--g500);max-width:320px;margin-bottom:32px;line-height:1.65">Simple, flexible household budgeting — set up in minutes.</p>
   <div class="g2" style="width:100%;margin-bottom:32px;text-align:left">
-    ${[['💬','Guided setup','One question at a time'],['❄️','Debt Snowball','Simple payoff strategy'],['🪣','Savings buckets','Every dollar has a job'],['📅','Live budget','Planned vs actual']].map(([i,t,d])=>`
-    <div class="card" style="padding:16px"><div style="font-size:22px;margin-bottom:6px">${i}</div>
+    ${[['chat','Guided setup','One question at a time'],['debt','Debt Snowball','Simple payoff strategy'],['savings','Savings buckets','Every dollar has a job'],['calendar','Live budget','Planned vs actual']].map(([i,t,d])=>`
+    <div class="card" style="padding:16px"><div style="margin-bottom:8px;color:var(--s500)">${i==='chat'?`<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M28 6H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4l4 4 4-4h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2z\"/><path d=\"M10 13h12M10 17h8\"/></svg>`:(i==='debt'?ICONS.debt:(i==='savings'?ICONS.savings:`<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"4\" y=\"6\" width=\"24\" height=\"22\" rx=\"2\"/><path d=\"M4 12h24M10 4v4M22 4v4\"/></svg>`))}</div>
     <div style="font-size:13px;font-weight:600">${t}</div><div style="font-size:12px;color:var(--g400);margin-top:3px">${d}</div></div>`).join('')}
   </div>
   <button class="btn bp" style="width:100%;padding:17px;font-size:15px;font-weight:600;margin-bottom:12px;border-radius:14px" onclick="startGuided()">Walk me through it 💬</button>
@@ -586,7 +586,7 @@ function rGuided(){
         <div style="font-size:12px;color:var(--g400)">${fmt(g.currentAmount)} / ${fmt(g.targetAmount)}</div></div>
       </div>
       <div style="display:flex;gap:5px">
-        <button class="btn bg bxsm" onclick="openGoalModal('${g.id}')">✏️</button>
+        <button class="btn bg bxsm" onclick="openGoalModal('${g.id}')" style="display:inline-flex;align-items:center"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4l6 6L10 28H4v-6L22 4z"/><path d="M18 8l6 6"/></svg></button>
         <button class="btn bd" onclick="rmGoal('${g.id}');render()">✕</button>
       </div></div>`).join('')}
     ${unalloc>0&&S.acctBalance>0?`<div style="padding:10px 12px;background:var(--s50);border-radius:var(--rad);font-size:13px;color:var(--s600);font-weight:500;margin-top:8px">💰 ${fmt(unalloc)} still unallocated — add more buckets below</div>`:''}
@@ -896,11 +896,6 @@ function rDash(){
       ${TABS.map(t=>`<button class="nb ${S.tab===t.id?'act':''}" onclick="setTab('${t.id}')">
         <div class="nb-icon">${ICONS[t.e]}</div><span>${t.l}</span>
       </button>`).join('')}
-      <div class="nb-settings">
-        <button class="nb" onclick="openSettings()">
-          <div class="nb-icon">${ICONS.settings}</div><span>Settings</span>
-        </button>
-      </div>
     </nav>
     ${S.modal?rModal():''}
     ${S.alert?rAlert():''}
@@ -936,7 +931,7 @@ function rHome(){
     :`<div class="ibar">
         <div class="ibar-top">
           <div><div class="il">${MONTHS[m]} ${y} Income</div><div class="iv">${inc>0?fmt(inc):'Not set'}</div></div>
-          <button class="iedit" onclick="startEditIncome()">✏️ Edit</button>
+          <button class="iedit" onclick="startEditIncome()" style="display:inline-flex;align-items:center;gap:5px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4l6 6L10 28H4v-6L22 4z"/><path d="M18 8l6 6"/></svg> Edit</button>
         </div>
         <div class="ibar-stats">
           <div class="istat"><div class="istat-l">After planned spend</div><div class="istat-v">${inc>0?fmt(iap):'—'}</div></div>
@@ -974,7 +969,7 @@ function rHome(){
       <div class="card" style="overflow:hidden;margin-bottom:8px">
         ${rows.length===0
           ?`<div style="padding:48px 24px;text-align:center">
-              <div style="font-size:36px;margin-bottom:12px">📋</div>
+              <div style="margin-bottom:16px;color:var(--g300)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="6" width="16" height="22" rx="2"/><path d="M12 6V4h8v2"/><path d="M12 14h8M12 18h6"/></svg></div>
               <div style="font-size:15px;font-weight:600;color:var(--g700);margin-bottom:6px">No budget categories yet</div>
               <div style="font-size:13px;color:var(--g500);margin-bottom:20px">Add your spending categories to start tracking.</div>
               <button class="btn bp bsm" onclick="openSettings()">Go to Settings</button>
@@ -1014,7 +1009,7 @@ function rHome(){
           <div style="min-width:80px;text-align:right;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums" class="${(tp-ta)>=0?'pos':'neg'}">${fmt(tp-ta)}</div>
         </div>`:''}
       </div>
-      <div style="font-size:12px;color:var(--g400);padding:0 4px">✏️ Click any planned amount to edit</div>
+      <div style="font-size:12px;color:var(--g400);padding:0 4px;display:flex;align-items:center;gap:4px"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4l6 6L10 28H4v-6L22 4z"/><path d="M18 8l6 6"/></svg> Click any planned amount to edit</div>
     </div>
 
     <!-- RIGHT: summary + quick actions -->
@@ -1041,9 +1036,9 @@ function rHome(){
       <div>
         <div style="font-size:12px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Quick actions</div>
         <div class="card" style="overflow:hidden">
-          ${[['💸','Log a transaction','txns',()=>`setTab('txns')`],['🪣','Savings buckets','savings',()=>`setTab('savings')`],['❄️','Debt tracker','debt',()=>`setTab('debt')`]].map(([ico,label,_,fn])=>
+          ${[['txns','Log a transaction','txns',()=>`setTab('txns')`],['savings','Savings buckets','savings',()=>`setTab('savings')`],['debt','Debt tracker','debt',()=>`setTab('debt')`]].map(([ico,label,_,fn])=>
             `<button class="btn" onclick="${fn()}" style="width:100%;padding:13px 18px;border-radius:0;text-align:left;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--g100);font-size:14px;font-weight:500;color:var(--g700);background:transparent">
-              <div style="width:32px;height:32px;background:var(--g100);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">${ico}</div>
+              <div style="width:32px;height:32px;background:var(--g100);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--g600)">${ICONS[ico]}</div>
               <span>${label}</span>
               <span style="margin-left:auto;color:var(--g400);font-size:16px">›</span>
             </button>`).join('')}
@@ -1075,7 +1070,7 @@ function rTxns(){
   </div>
   ${all.length===0
     ?`<div class="card" style="padding:56px 24px;text-align:center">
-        <div style="font-size:40px;margin-bottom:14px">💸</div>
+        <div style="margin-bottom:16px;color:var(--g300)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="26" height="16" rx="2"/><circle cx="16" cy="17" r="4"/><path d="M3 13h4M25 13h4M3 21h4M25 21h4"/></svg></div>
         <div style="font-size:16px;font-weight:600;color:var(--g700);margin-bottom:6px">No transactions yet</div>
         <div style="font-size:13px;color:var(--g500);margin-bottom:20px">Log your first transaction to start tracking spending.</div>
         <button class="btn bp bsm" onclick="openTxModal()">+ Log transaction</button>
@@ -1132,7 +1127,7 @@ function rDebt(){
   </div>
   ${debts.length===0
     ?`<div class="card" style="padding:48px 24px;text-align:center">
-        <div style="font-size:40px;margin-bottom:14px">🎉</div>
+        <div style="margin-bottom:16px;color:var(--g300)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 28L13 10l9 9L4 28z"/><path d="M13 10l5-5M18 5l2-2M22 9l3-1M20 14l2 2M9 7l1 2"/></svg></div>
         <div style="font-size:16px;font-weight:600;color:var(--g700)">No debt logged</div>
         <div style="font-size:13px;color:var(--g500);margin-top:6px">Add accounts to track your payoff journey.</div>
       </div>`
@@ -1216,7 +1211,7 @@ function rSav(){
           <div style="display:flex;align-items:center;gap:5px;flex-shrink:0">
             <div style="text-align:right"><div style="font-size:13px;font-weight:600">${fmt(g.currentAmount)}</div>
             <div style="font-size:11px;color:var(--g400)">/ ${fmt(g.targetAmount)}</div></div>
-            <button class="btn bg bxsm" onclick="openGoalModal('${g.id}')">✏️</button>
+            <button class="btn bg bxsm" onclick="openGoalModal('${g.id}')" style="display:inline-flex;align-items:center"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4l6 6L10 28H4v-6L22 4z"/><path d="M18 8l6 6"/></svg></button>
             <button class="btn bd" onclick="rmGoal('${g.id}')">✕</button>
           </div>
         </div>
@@ -1265,7 +1260,7 @@ function rSettings(){
           <div class="settings-grid">
             <div>
               <div class="card" style="overflow:hidden;margin-bottom:20px">
-                <div style="padding:14px 20px;border-bottom:1px solid var(--g100)"><div style="font-size:15px;font-weight:700">🏡 Household</div></div>
+                <div style="padding:14px 20px;border-bottom:1px solid var(--g100)"><div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:7px"><span style="color:var(--s500)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 13v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V13"/><path d="M3 13L14.7 4.2a2 2 0 0 1 2.6 0L29 13"/><path d="M13 27V19a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v8"/></svg></span>Household</div></div>
                 <div style="padding:16px 20px">
                   <div style="margin-bottom:12px"><span class="lbl">Household name</span>
                   <input value="${S.name}" placeholder="e.g. The Johnson Family" onblur="S.name=this.value"/></div>
@@ -1284,7 +1279,7 @@ function rSettings(){
                 </div>
               </div>
               <div class="card" style="overflow:hidden;margin-bottom:20px">
-                <div style="padding:14px 20px;border-bottom:1px solid var(--g100)"><div style="font-size:15px;font-weight:700">🔧 Account</div></div>
+                <div style="padding:14px 20px;border-bottom:1px solid var(--g100)"><div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:7px"><span style="color:var(--g500)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M27 7a6 6 0 0 1-8.5 8.5L7 27a2.5 2.5 0 0 1-3.5-3.5L15 12A6 6 0 0 1 27 7z"/><path d="M24 4l-3 3 3 3"/></svg></span>Account</div></div>
                 <div style="padding:16px 20px;display:flex;flex-direction:column;gap:10px">
                   <button class="btn bs" style="width:100%;padding:12px" onclick="go('landing')">← Back to start</button>
                   <button class="btn" onclick="confirmReset()" style="width:100%;padding:12px;background:var(--r50);color:var(--r600);border:1px solid var(--r300);border-radius:var(--rad);font-size:13px;font-weight:600">🗑 Reset all data</button>
@@ -1295,7 +1290,7 @@ function rSettings(){
             <div>
               <div class="card" style="overflow:hidden;margin-bottom:20px">
                 <div style="padding:14px 20px;border-bottom:1px solid var(--g100);display:flex;justify-content:space-between;align-items:center">
-                  <div><div style="font-size:15px;font-weight:700">📋 Budget Categories &amp; Expenses</div>
+                  <div><div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:7px"><span style="color:var(--s500)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="6" width="16" height="22" rx="2"/><path d="M12 6V4h8v2"/><path d="M12 14h8M12 18h6"/></svg></span>Budget Categories &amp; Expenses</div>
                   <div style="font-size:12px;color:var(--g400);margin-top:2px">Pre-fills your monthly budget planned amounts</div></div>
                   <span style="font-size:13px;font-weight:600;color:var(--s600)">${fmt(total)}/mo</span>
                 </div>
@@ -1311,7 +1306,7 @@ function rSettings(){
                     ${open?`<div class="tb2">${items.map(e=>`<div class="er">
                       <div class="er-b"><div class="er-n" style="font-size:13px">${e.item}${e._da?` <span style="font-size:10px;color:var(--s600)">AUTO</span>`:''}</div><div class="er-c">${e.category}</div></div>
                       <div class="er-r"><span style="font-size:13px;font-weight:600">${fmt(e.amount)}</span>
-                      ${!e._da?`<div style="display:flex;gap:3px"><button class="btn bg bxsm" onclick="openEditExpModal('${e.id}')">✏️</button><button class="btn bd" onclick="rmExp('${e.id}')">✕</button></div>`:`<span style="font-size:10px;color:var(--g400)">from debt</span>`}
+                      ${!e._da?`<div style="display:flex;gap:3px"><button class="btn bg bxsm" onclick="openEditExpModal('${e.id}')" style="display:inline-flex;align-items:center"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4l6 6L10 28H4v-6L22 4z"/><path d="M18 8l6 6"/></svg></button><button class="btn bd" onclick="rmExp('${e.id}')">✕</button></div>`:`<span style="font-size:10px;color:var(--g400)">from debt</span>`}
                       </div></div>`).join('')}
                       <div style="padding:8px 12px"><button class="btn bs bsm" style="width:100%" onclick="openAddExpModal('${t.key}')">+ Add</button></div>
                     </div>`:''}</div>`}).join('')}
